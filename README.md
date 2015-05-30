@@ -1,5 +1,5 @@
 # PopPage: a small static website generator
-PopPage is a simple command-line utility that can generate static websites (or any documents) by applying content to Jinja2 templates. The content can be supplied via files or directly on the command-line. For more information on using PopPage, please refer to the documentation in the main `poppage.py` file.
+PopPage is a simple command-line utility that can generate static websites (or any documents) by applying content to [Jinja2](http://jinja.pocoo.org/) templates. The content can be supplied via files or directly on the command-line. For more information on using PopPage, please refer to the documentation in the main `poppage.py` file.
 
 The following is a quick example of using PopPage:
 
