@@ -33,7 +33,7 @@ from jinja2.environment import Environment
 ## SECTION: Global Definitions                                  #
 ##==============================================================#
 
-__version__ = "poppage 0.1.0-alpha"
+__version__ = "poppage 0.1.0"
 
 ##==============================================================#
 ## SECTION: Function Definitions                                #
@@ -45,6 +45,7 @@ def main():
 
     tmplfile = args['TMPLFILE']
     dfltfile = args['--defaults']
+    outpfile = args['--output']
     tmpldict = {}
 
     # Extract default values from YAML file, if given.
@@ -64,7 +65,14 @@ def main():
     env = Environment()
     env.loader = FileSystemLoader('.')
     tmpl = env.get_template(tmplfile)
-    print tmpl.render(**tmpldict)
+    rndr = tmpl.render(**tmpldict)
+
+    # Handle rendered output.
+    if outpfile:
+        with open(outpfile, "w") as f:
+            f.write(rndr)
+    else:
+        print(rndr)
 
 ##==============================================================#
 ## SECTION: Main Body                                           #
