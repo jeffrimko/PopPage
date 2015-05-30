@@ -13,7 +13,7 @@
 ::=============================================================::
 
 :: Define directory variables.
-set OUTDIR=_output
+set OUTDIR=__output__
 
 :: Command used to generate a page.
 set GENCMD=python ..\..\app\poppage.py
