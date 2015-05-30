@@ -5,15 +5,15 @@ The following is a quick example of using PopPage:
 
   - Template file (`template.jinja2`):
 
-        `Hello {{name}}!`
+        Hello {{name}}!
 
   - PopPage command:
 
-        `poppage template.jinja2 --string=world name`
+        poppage template.jinja2 --string=world name
 
   - Output to `stdout`:
 
-        `Hello world!`
+        Hello world!
 
 PopPage is written in Python 2.7 using the following third-party libraries:
 
