@@ -1,19 +1,18 @@
 """PopPage is a utility for generating static web pages.
 
 Usage:
-    poppage TMPLFILE [--defaults=DFLTFILE] [--output=OUTFILE] [((--string=STRING | --file=FILE) VAR)]...
+    poppage INPATH [--defaults=DFLTFILE] [(--string KEY VAL) | (--file KEY PATH)]... [OUTPATH]
     poppage -h | --help
     poppage --version
 
 Arguments:
-    TMPLFILE    A Jinja2 template file used to generate the output.
-    VAR         The template variable to target for the given content.
+    INPATH      Input Jinja2 template used to generate the output; can be a single file or a directory.
+    OUTPATH     Path of the generated output; either a file or directory based on the input template.
 
 Options:
     --defaults=DFLTFILE     A YAML file with default template content.
-    --output=OUTFILE        The output file to create.
-    --string=STRING         Use the given string for the template variable content.
-    --file=FILE             Use the given file contents for the template variable content.
+    --string=KEY            Use the given string in VAR for the given template variable KEY.
+    --file=KEY              Use the given file contents in PATH for the given template variable KEY.
     -h --help               Show this help message and exit.
     --version               Show version and exit.
 """
@@ -22,8 +21,10 @@ Options:
 ## SECTION: Imports                                             #
 ##==============================================================#
 
+import os.path as op
 import sys
 
+import auxly.filesys as fs
 import yaml
 from docopt import docopt
 from jinja2 import FileSystemLoader
@@ -33,7 +34,7 @@ from jinja2.environment import Environment
 ## SECTION: Global Definitions                                  #
 ##==============================================================#
 
-__version__ = "poppage 0.1.0"
+__version__ = "poppage 0.2.0-alpha"
 
 ##==============================================================#
 ## SECTION: Function Definitions                                #
@@ -43,33 +44,28 @@ def main():
     """This function implements the main logic."""
     args = docopt(__doc__, version=__version__)
 
-    tmplfile = args['TMPLFILE']
+    inpath = args['INPATH']
+    outpath = args['OUTPATH']
     dfltfile = args['--defaults']
-    outpfile = args['--output']
     tmpldict = {}
 
     # Extract default values from YAML file, if given.
     if dfltfile:
-        tmpldict = yaml.load(open(dfltfile, "r").read())
-
-    # Parse template dictionary info from command line.
-    i = 0
-    for arg in sys.argv:
-        if arg.startswith("--string"):
-            tmpldict[sys.argv[i+1]] = arg.split("=")[1]
-        elif arg.startswith("--file"):
-            tmpldict[sys.argv[i+1]] = open(arg.split("=")[1], "r").read()
-        i += 1
+        defaults = yaml.load(open(dfltfile, "r").read())
+        tmpldict.update(defaults.get('string',{}))
+        tmpldict.update({k:open(v).read() for k,v in defaults.get('file',{}).iteritems()})
+    tmpldict.update({k:v for k,v in zip(args['--string'], args['VAL'])})
+    tmpldict.update({k:open(v).read() for k,v in zip(args['--file'], args['PATH'])})
 
     # Render template.
     env = Environment()
-    env.loader = FileSystemLoader('.')
-    tmpl = env.get_template(tmplfile)
+    env.loader = FileSystemLoader(".")
+    tmpl = env.get_template(inpath)
     rndr = tmpl.render(**tmpldict)
 
     # Handle rendered output.
-    if outpfile:
-        with open(outpfile, "w") as f:
+    if outpath:
+        with open(outpath, "w") as f:
             f.write(rndr)
     else:
         print(rndr)
