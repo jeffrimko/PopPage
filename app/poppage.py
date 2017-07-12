@@ -21,13 +21,14 @@ Options:
 ## SECTION: Imports                                             #
 ##==============================================================#
 
+import os
 import os.path as op
-import sys
 
-import auxly.filesys as fs
+import auxly.filesys as filesys
+import qprompt
 import yaml
 from docopt import docopt
-from jinja2 import FileSystemLoader
+from jinja2 import FileSystemLoader, Template
 from jinja2.environment import Environment
 
 ##==============================================================#
@@ -40,6 +41,58 @@ __version__ = "poppage 0.2.0-alpha"
 ## SECTION: Function Definitions                                #
 ##==============================================================#
 
+def render_str(s, info):
+    return Template(s).render(**info)
+
+def render_file(inpath, tmpldict, outpath=None):
+    # Render template.
+    inpath = op.abspath(inpath)
+    env = Environment()
+    env.loader = FileSystemLoader(op.dirname(inpath))
+    tmpl = env.get_template(op.basename(inpath))
+    rndr = tmpl.render(**tmpldict)
+
+    # A rendered output path will be used if no explicit path provided.
+    outr = render_str(inpath, tmpldict)
+    if outr != inpath and outpath == None:
+        outpath = outr
+
+    # Handle rendered output.
+    if outpath:
+        with open(outpath, "w") as f:
+            qprompt.status("Writing `%s`..." % (outpath), f.write, [rndr])
+    else:
+        print(rndr)
+
+def render_dir(inpath, tmpldict, outpath=None):
+    print "DBGMRK 10"
+    inpath = op.abspath(inpath)
+    dpath = op.dirname(inpath)
+    bpath = op.basename(inpath)
+    if not outpath:
+        outpath = dpath
+    if not outpath:
+        return
+    outpath = render_str(outpath, tmpldict)
+    dname = render_str(bpath, tmpldict)
+    mpath = op.join(outpath, dname)
+    qprompt.status("Making dir `%s`..." % (mpath), filesys.makedirs, [mpath])
+
+    print "DBGMRK 0"
+    for r,ds,fs in os.walk(inpath):
+        print "DBGMRK 1", r, ds, fs, mpath
+        qprompt.pause()
+        for f in fs:
+            print "DBGMRK 5"
+            ipath = op.join(r,f)
+            fname = render_str(f, tmpldict)
+            opath = op.join(mpath, fname)
+            render_file(ipath, tmpldict, opath)
+        for d in ds:
+            print "DBGMRK 6"
+            ipath = op.join(r, d)
+            render_dir(ipath, tmpldict)
+
 def main():
     """This function implements the main logic."""
     args = docopt(__doc__, version=__version__)
@@ -49,7 +102,6 @@ def main():
     dfltfile = args['--defaults']
     tmpldict = {}
 
-    # Extract default values from YAML file, if given.
     if dfltfile:
         defaults = yaml.load(open(dfltfile, "r").read())
         tmpldict.update(defaults.get('string',{}))
@@ -57,18 +109,11 @@ def main():
     tmpldict.update({k:v for k,v in zip(args['--string'], args['VAL'])})
     tmpldict.update({k:open(v).read() for k,v in zip(args['--file'], args['PATH'])})
 
-    # Render template.
-    env = Environment()
-    env.loader = FileSystemLoader(".")
-    tmpl = env.get_template(inpath)
-    rndr = tmpl.render(**tmpldict)
-
-    # Handle rendered output.
-    if outpath:
-        with open(outpath, "w") as f:
-            f.write(rndr)
+    if op.isfile(inpath):
+        render_file(inpath, tmpldict, outpath=outpath)
     else:
-        print(rndr)
+        print "DBGMRK 2"
+        render_dir(inpath, tmpldict, outpath=outpath)
 
 ##==============================================================#
 ## SECTION: Main Body                                           #
