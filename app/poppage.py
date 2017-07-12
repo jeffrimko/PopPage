@@ -65,7 +65,6 @@ def render_file(inpath, tmpldict, outpath=None):
         print(rndr)
 
 def render_dir(inpath, tmpldict, outpath=None):
-    print "DBGMRK 10"
     inpath = op.abspath(inpath)
     dpath = op.dirname(inpath)
     bpath = op.basename(inpath)
@@ -78,20 +77,16 @@ def render_dir(inpath, tmpldict, outpath=None):
     mpath = op.join(outpath, dname)
     qprompt.status("Making dir `%s`..." % (mpath), filesys.makedirs, [mpath])
 
-    print "DBGMRK 0"
     for r,ds,fs in os.walk(inpath):
-        print "DBGMRK 1", r, ds, fs, mpath
-        qprompt.pause()
         for f in fs:
-            print "DBGMRK 5"
             ipath = op.join(r,f)
             fname = render_str(f, tmpldict)
             opath = op.join(mpath, fname)
             render_file(ipath, tmpldict, opath)
         for d in ds:
-            print "DBGMRK 6"
             ipath = op.join(r, d)
             render_dir(ipath, tmpldict)
+        break
 
 def main():
     """This function implements the main logic."""
@@ -112,7 +107,6 @@ def main():
     if op.isfile(inpath):
         render_file(inpath, tmpldict, outpath=outpath)
     else:
-        print "DBGMRK 2"
         render_dir(inpath, tmpldict, outpath=outpath)
 
 ##==============================================================#
