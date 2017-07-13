@@ -28,7 +28,7 @@ import auxly.filesys as filesys
 import qprompt
 import yaml
 from docopt import docopt
-from jinja2 import FileSystemLoader, Template
+from jinja2 import FileSystemLoader, Template, meta
 from jinja2.environment import Environment
 
 ##==============================================================#
@@ -41,18 +41,27 @@ __version__ = "poppage 0.2.0-alpha"
 ## SECTION: Function Definitions                                #
 ##==============================================================#
 
-def render_str(s, info):
-    return Template(s).render(**info)
+def render_str(tmplstr, tmpldict):
+    env = Environment()
+    tvar = meta.find_undeclared_variables(env.parse(tmplstr))
+    if not tvar.issubset(set(tmpldict.keys())):
+        return
+    return Template(tmplstr).render(**tmpldict)
 
 def render_file(tmplpath, tmpldict):
     tmplpath = op.abspath(tmplpath)
     env = Environment()
     env.loader = FileSystemLoader(op.dirname(tmplpath))
     tmpl = env.get_template(op.basename(tmplpath))
+    tvar = meta.find_undeclared_variables(env.parse(open(tmplpath).read()))
+    if not tvar.issubset(set(tmpldict.keys())):
+        return
     return tmpl.render(**tmpldict)
 
 def handle_file(inpath, tmpldict, outpath=None):
     text = render_file(inpath, tmpldict)
+    if not text:
+        return False
 
     # A rendered output path will be used if no explicit path provided.
     opath = render_str(inpath, tmpldict)
