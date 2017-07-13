@@ -8,11 +8,11 @@ The following is a quick example of using PopPage:
 
   - Template file (`template.jinja2`):
 
-        Hello {{name}}!
+        Hello {{foo}}!
 
   - PopPage command:
 
-        poppage template.jinja2 --string=world name
+        poppage template.jinja2 --string foo world
 
   - Output to `stdout`:
 
