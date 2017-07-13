@@ -44,49 +44,58 @@ __version__ = "poppage 0.2.0-alpha"
 def render_str(s, info):
     return Template(s).render(**info)
 
-def render_file(inpath, tmpldict, outpath=None):
-    # Render template.
-    inpath = op.abspath(inpath)
+def render_file(tmplpath, tmpldict):
+    tmplpath = op.abspath(tmplpath)
     env = Environment()
-    env.loader = FileSystemLoader(op.dirname(inpath))
-    tmpl = env.get_template(op.basename(inpath))
-    rndr = tmpl.render(**tmpldict)
+    env.loader = FileSystemLoader(op.dirname(tmplpath))
+    tmpl = env.get_template(op.basename(tmplpath))
+    return tmpl.render(**tmpldict)
+
+def handle_file(inpath, tmpldict, outpath=None):
+    text = render_file(inpath, tmpldict)
 
     # A rendered output path will be used if no explicit path provided.
-    outr = render_str(inpath, tmpldict)
-    if outr != inpath and outpath == None:
-        outpath = outr
+    opath = render_str(inpath, tmpldict)
+    if opath != inpath and outpath == None:
+        outpath = opath
 
     # Handle rendered output.
     if outpath:
         with open(outpath, "w") as f:
-            qprompt.status("Writing `%s`..." % (outpath), f.write, [rndr])
+            qprompt.status("Writing `%s`..." % (outpath), f.write, [text])
     else:
-        print(rndr)
+        print(text)
+    return True
 
-def render_dir(inpath, tmpldict, outpath=None):
+def handle_dir(inpath, tmpldict, outpath=None):
     inpath = op.abspath(inpath)
     dpath = op.dirname(inpath)
     bpath = op.basename(inpath)
     if not outpath:
         outpath = dpath
     if not outpath:
-        return
+        return False
     outpath = render_str(outpath, tmpldict)
     dname = render_str(bpath, tmpldict)
+    if not dname:
+        return False
     mpath = op.join(outpath, dname)
     qprompt.status("Making dir `%s`..." % (mpath), filesys.makedirs, [mpath])
 
+    # Iterate over files and directories in parent only.
     for r,ds,fs in os.walk(inpath):
         for f in fs:
             ipath = op.join(r,f)
             fname = render_str(f, tmpldict)
             opath = op.join(mpath, fname)
-            render_file(ipath, tmpldict, opath)
+            if not handle_file(ipath, tmpldict, opath):
+                return False
         for d in ds:
             ipath = op.join(r, d)
-            render_dir(ipath, tmpldict)
+            if not handle_dir(ipath, tmpldict):
+                return False
         break
+    return True
 
 def main():
     """This function implements the main logic."""
@@ -105,9 +114,9 @@ def main():
     tmpldict.update({k:open(v).read() for k,v in zip(args['--file'], args['PATH'])})
 
     if op.isfile(inpath):
-        render_file(inpath, tmpldict, outpath=outpath)
+        handle_file(inpath, tmpldict, outpath=outpath)
     else:
-        render_dir(inpath, tmpldict, outpath=outpath)
+        handle_dir(inpath, tmpldict, outpath=outpath)
 
 ##==============================================================#
 ## SECTION: Main Body                                           #
