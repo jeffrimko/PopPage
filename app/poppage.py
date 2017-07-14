@@ -54,7 +54,11 @@ def render_file(tmplpath, tmpldict):
     env.loader = FileSystemLoader(op.dirname(tmplpath))
     tmpl = env.get_template(op.basename(tmplpath))
     tvar = meta.find_undeclared_variables(env.parse(open(tmplpath).read()))
-    if not tvar.issubset(set(tmpldict.keys())):
+    miss = tvar - set(tmpldict.keys())
+    if miss:
+        qprompt.error("Template vars `%s` in `%s` were not supplied values!" % (
+            "/".join(miss),
+            op.basename(tmplpath)))
         return
     return tmpl.render(**tmpldict)
 
