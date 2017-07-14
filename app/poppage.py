@@ -65,7 +65,15 @@ def render_file(tmplpath, tmpldict):
         return
     return tmpl.render(**tmpldict)
 
-def handle_file(inpath, tmpldict, outpath=None):
+def pop(inpath, tmpldict, outpath=None):
+    """Generates a file or directory based on the given input
+    template/dictionary."""
+    if op.isfile(inpath):
+        pop_file(inpath, tmpldict, outpath=outpath)
+    else:
+        pop_dir(inpath, tmpldict, outpath=outpath)
+
+def pop_file(inpath, tmpldict, outpath=None):
     inpath = op.abspath(inpath)
     text = render_file(inpath, tmpldict)
     if not text:
@@ -87,7 +95,7 @@ def handle_file(inpath, tmpldict, outpath=None):
         print(text)
     return True
 
-def handle_dir(inpath, tmpldict, outpath=None):
+def pop_dir(inpath, tmpldict, outpath=None):
     inpath = op.abspath(inpath)
     dpath = op.dirname(inpath)
     bpath = op.basename(inpath)
@@ -108,11 +116,11 @@ def handle_dir(inpath, tmpldict, outpath=None):
             ipath = op.join(r,f)
             fname = render_str(f, tmpldict)
             opath = op.join(mpath, fname)
-            if not handle_file(ipath, tmpldict, opath):
+            if not pop_file(ipath, tmpldict, opath):
                 return False
         for d in ds:
             ipath = op.join(r, d)
-            if not handle_dir(ipath, tmpldict):
+            if not pop_dir(ipath, tmpldict):
                 return False
         break
     return True
@@ -124,8 +132,9 @@ def main():
     inpath = args['INPATH']
     outpath = args['OUTPATH']
     dfltfile = args['--defaults']
-    tmpldict = {}
 
+    #: Prepare template dictionary.
+    tmpldict = {}
     if dfltfile:
         defaults = yaml.load(open(dfltfile, "r").read())
         tmpldict.update(defaults.get('string',{}))
@@ -133,10 +142,7 @@ def main():
     tmpldict.update({k:v for k,v in zip(args['--string'], args['VAL'])})
     tmpldict.update({k:open(v).read() for k,v in zip(args['--file'], args['PATH'])})
 
-    if op.isfile(inpath):
-        handle_file(inpath, tmpldict, outpath=outpath)
-    else:
-        handle_dir(inpath, tmpldict, outpath=outpath)
+    pop(inpath, tmpldict, outpath=outpath)
 
 ##==============================================================#
 ## SECTION: Main Body                                           #
