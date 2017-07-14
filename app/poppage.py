@@ -44,7 +44,10 @@ __version__ = "poppage 0.2.0-alpha"
 def render_str(tmplstr, tmpldict):
     env = Environment()
     tvar = meta.find_undeclared_variables(env.parse(tmplstr))
-    if not tvar.issubset(set(tmpldict.keys())):
+    miss = tvar - set(tmpldict.keys())
+    if miss:
+        qprompt.error("Template vars `%s` were not supplied values!" % (
+            "/".join(miss)))
         return
     return Template(tmplstr).render(**tmpldict)
 
@@ -63,14 +66,18 @@ def render_file(tmplpath, tmpldict):
     return tmpl.render(**tmpldict)
 
 def handle_file(inpath, tmpldict, outpath=None):
+    inpath = op.abspath(inpath)
     text = render_file(inpath, tmpldict)
     if not text:
         return False
 
     # A rendered output path will be used if no explicit path provided.
-    opath = render_str(inpath, tmpldict)
-    if opath != inpath and outpath == None:
-        outpath = opath
+    if outpath == None:
+        opath = render_str(inpath, tmpldict)
+        if not opath:
+            return False
+        if opath != inpath:
+            outpath = opath
 
     # Handle rendered output.
     if outpath:
