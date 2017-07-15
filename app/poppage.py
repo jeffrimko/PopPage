@@ -1,7 +1,7 @@
 """PopPage is a utility for generating static web pages.
 
 Usage:
-    poppage INPATH [--defaults=DFLTFILE] [(--string KEY VAL) | (--file KEY PATH)]... [OUTPATH]
+    poppage INPATH [--defaults=DFLTFILE] [options] [(--string KEY VAL) | (--file KEY PATH)]... [OUTPATH]
     poppage -h | --help
     poppage --version
 
@@ -13,6 +13,7 @@ Options:
     --defaults=DFLTFILE     A YAML file with default template content.
     --string=KEY            Use the given string in VAR for the given template variable KEY.
     --file=KEY              Use the given file contents in PATH for the given template variable KEY.
+    --nestdelim=DELIM       Delimiter to use for specifying nested KEYs. [default: :#:]
     -h --help               Show this help message and exit.
     --version               Show version and exit.
 """
@@ -27,6 +28,7 @@ import os.path as op
 import auxly.filesys as filesys
 import qprompt
 import yaml
+from binaryornot.check import is_binary
 from docopt import docopt
 from jinja2 import FileSystemLoader, Template, meta
 from jinja2.environment import Environment
@@ -75,6 +77,9 @@ def pop(inpath, tmpldict, outpath=None):
 
 def pop_file(inpath, tmpldict, outpath=None):
     inpath = op.abspath(inpath)
+    if is_binary(inpath):
+        qprompt.status("Copying `%s`..." % (outpath), filesys.copy, [inpath,outpath])
+        return
     text = render_file(inpath, tmpldict)
     if not text:
         return False
@@ -141,6 +146,20 @@ def main():
         tmpldict.update({k:open(v).read() for k,v in defaults.get('file',{}).iteritems()})
     tmpldict.update({k:v for k,v in zip(args['--string'], args['VAL'])})
     tmpldict.update({k:open(v).read() for k,v in zip(args['--file'], args['PATH'])})
+
+    #: Handle nested dictionaries.
+    tmplnest = {}
+    topop = []
+    delim = args['--nestdelim']
+    for k,v in tmpldict.iteritems():
+        if k.find(delim) > -1:
+            sk,sv = k.split(delim)
+            tmplnest.setdefault(sk, {})
+            tmplnest[sk][sv] = v
+            topop.append(k)
+    for k in topop:
+        tmpldict.pop(k)
+    tmpldict.update(tmplnest)
 
     pop(inpath, tmpldict, outpath=outpath)
 
