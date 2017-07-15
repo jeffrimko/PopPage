@@ -1,2 +1,1 @@
-@echo off
-python.exe %~dp0poppage.py %*
+@python.exe %~dp0poppage.py %*
