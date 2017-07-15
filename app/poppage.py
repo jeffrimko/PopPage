@@ -81,7 +81,7 @@ def pop_file(inpath, tmpldict, outpath=None):
         qprompt.status("Copying `%s`..." % (outpath), filesys.copy, [inpath,outpath])
         return
     text = render_file(inpath, tmpldict)
-    if not text:
+    if text == None:
         return False
 
     # A rendered output path will be used if no explicit path provided.
@@ -97,22 +97,27 @@ def pop_file(inpath, tmpldict, outpath=None):
         with open(outpath, "w") as f:
             qprompt.status("Writing `%s`..." % (outpath), f.write, [text])
     else:
-        print(text)
+        qprompt.echo(text)
     return True
 
-def pop_dir(inpath, tmpldict, outpath=None):
+def pop_dir(inpath, tmpldict, outpath=None, _roots=None):
     inpath = op.abspath(inpath)
     dpath = op.dirname(inpath)
     bpath = op.basename(inpath)
     if not outpath:
-        outpath = dpath
-    if not outpath:
+        outpath = render_str(dpath, tmpldict)
+        dname = render_str(bpath, tmpldict)
+        if not dname:
+            return False
+        mpath = op.join(outpath, dname)
+    else:
+        mpath = op.abspath(outpath)
+    if not mpath:
         return False
-    outpath = render_str(outpath, tmpldict)
-    dname = render_str(bpath, tmpldict)
-    if not dname:
-        return False
-    mpath = op.join(outpath, dname)
+    if _roots:
+        mpath = mpath.replace(*_roots)
+    else:
+        _roots = (render_str(inpath, tmpldict), mpath)
     qprompt.status("Making dir `%s`..." % (mpath), filesys.makedirs, [mpath])
 
     # Iterate over files and directories in parent only.
@@ -125,7 +130,7 @@ def pop_dir(inpath, tmpldict, outpath=None):
                 return False
         for d in ds:
             ipath = op.join(r, d)
-            if not pop_dir(ipath, tmpldict):
+            if not pop_dir(ipath, tmpldict, _roots=_roots):
                 return False
         break
     return True
@@ -138,7 +143,7 @@ def main():
     outpath = args['OUTPATH']
     dfltfile = args['--defaults']
 
-    #: Prepare template dictionary.
+    # Prepare template dictionary.
     tmpldict = {}
     if dfltfile:
         defaults = yaml.load(open(dfltfile, "r").read())
@@ -147,7 +152,7 @@ def main():
     tmpldict.update({k:v for k,v in zip(args['--string'], args['VAL'])})
     tmpldict.update({k:open(v).read() for k,v in zip(args['--file'], args['PATH'])})
 
-    #: Handle nested dictionaries.
+    # Handle nested dictionaries.
     tmplnest = {}
     topop = []
     delim = args['--nestdelim']
