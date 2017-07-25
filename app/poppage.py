@@ -1,7 +1,8 @@
 """PopPage is a utility for generating static web pages.
 
 Usage:
-    poppage INPATH [--defaults=DFLTFILE] [options] [(--string KEY VAL) | (--file KEY PATH)]... [OUTPATH]
+    poppage make INPATH [--defaults DFLTFILE] [options] [(--string KEY VAL) | (--file KEY PATH)]... [OUTPATH]
+    poppage check INPATH
     poppage -h | --help
     poppage --version
 
@@ -24,6 +25,9 @@ Options:
 
 import os
 import os.path as op
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 import auxly.filesys as filesys
 import qprompt
@@ -32,21 +36,41 @@ from binaryornot.check import is_binary
 from docopt import docopt
 from jinja2 import FileSystemLoader, Template, meta
 from jinja2.environment import Environment
+from jinja2schema import infer, model
 
 ##==============================================================#
 ## SECTION: Global Definitions                                  #
 ##==============================================================#
 
+#: Application version string.
 __version__ = "poppage 0.2.0-alpha"
+
+#: Key separator.
+KEYSEP = "->"
 
 ##==============================================================#
 ## SECTION: Function Definitions                                #
 ##==============================================================#
 
+def check_template(tmplstr, tmpldict=None):
+    tmpldict = tmpldict or {}
+    missing = []
+    for key, val in infer(tmplstr).items():
+        if key not in tmpldict:
+            missing.append(key)
+        if type(val) == model.List:
+            for subkey in val.item.keys():
+                if subkey not in tmpldict[key][0]:
+                    missing.append("%s%s%s" % (key, KEYSEP, subkey))
+        elif type(val) == model.Dictionary:
+            for subkey in val.keys():
+                if subkey not in tmpldict.get(key,[]):
+                    missing.append("%s%s%s" % (key, KEYSEP, subkey))
+    return missing
+
 def render_str(tmplstr, tmpldict):
     env = Environment()
-    tvar = meta.find_undeclared_variables(env.parse(tmplstr))
-    miss = tvar - set(tmpldict.keys())
+    miss = check_template(tmplstr, tmpldict)
     if miss:
         qprompt.error("Template vars `%s` were not supplied values!" % (
             "/".join(miss)))
@@ -58,8 +82,8 @@ def render_file(tmplpath, tmpldict):
     env = Environment()
     env.loader = FileSystemLoader(op.dirname(tmplpath))
     tmpl = env.get_template(op.basename(tmplpath))
-    tvar = meta.find_undeclared_variables(env.parse(open(tmplpath).read()))
-    miss = tvar - set(tmpldict.keys())
+    tmplstr = open(tmplpath).read()
+    miss = check_template(tmplstr, tmpldict)
     if miss:
         qprompt.error("Template vars `%s` in `%s` were not supplied values!" % (
             "/".join(miss),
@@ -67,15 +91,15 @@ def render_file(tmplpath, tmpldict):
         return
     return tmpl.render(**tmpldict)
 
-def pop(inpath, tmpldict, outpath=None):
+def make(inpath, tmpldict, outpath=None):
     """Generates a file or directory based on the given input
     template/dictionary."""
     if op.isfile(inpath):
-        pop_file(inpath, tmpldict, outpath=outpath)
+        make_file(inpath, tmpldict, outpath=outpath)
     else:
-        pop_dir(inpath, tmpldict, outpath=outpath)
+        make_dir(inpath, tmpldict, outpath=outpath)
 
-def pop_file(inpath, tmpldict, outpath=None):
+def make_file(inpath, tmpldict, outpath=None):
     inpath = op.abspath(inpath)
     if is_binary(inpath):
         qprompt.status("Copying `%s`..." % (outpath), filesys.copy, [inpath,outpath])
@@ -100,7 +124,7 @@ def pop_file(inpath, tmpldict, outpath=None):
         qprompt.echo(text)
     return True
 
-def pop_dir(inpath, tmpldict, outpath=None, _roots=None):
+def make_dir(inpath, tmpldict, outpath=None, _roots=None):
     inpath = op.abspath(inpath)
     dpath = op.dirname(inpath)
     bpath = op.basename(inpath)
@@ -126,14 +150,26 @@ def pop_dir(inpath, tmpldict, outpath=None, _roots=None):
             ipath = op.join(r,f)
             fname = render_str(f, tmpldict)
             opath = op.join(mpath, fname)
-            if not pop_file(ipath, tmpldict, opath):
+            if not make_file(ipath, tmpldict, opath):
                 return False
         for d in ds:
             ipath = op.join(r, d)
-            if not pop_dir(ipath, tmpldict, _roots=_roots):
+            if not make_dir(ipath, tmpldict, _roots=_roots):
                 return False
         break
     return True
+
+def check_all(inpath):
+    tvars = []
+    for r,ds,fs in os.walk(inpath):
+        tvars += check_template(op.basename(r))
+        for f in fs:
+            fpath = op.join(r,f)
+            with open(fpath) as fi:
+                tvars += check_template(fi.read())
+    qprompt.echo("Found variables:")
+    for var in sorted(list(set(tvars))):
+        qprompt.echo("  " + var)
 
 def main():
     """This function implements the main logic."""
@@ -166,7 +202,10 @@ def main():
         tmpldict.pop(k)
     tmpldict.update(tmplnest)
 
-    pop(inpath, tmpldict, outpath=outpath)
+    if args['check']:
+        check_all(inpath)
+    elif args['make']:
+        make(inpath, tmpldict, outpath=outpath)
 
 ##==============================================================#
 ## SECTION: Main Body                                           #
