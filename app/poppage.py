@@ -6,6 +6,10 @@ Usage:
     poppage -h | --help
     poppage --version
 
+Commands:
+    make    Generates directories and files based on the given INPATH template.
+    check   Check the given INPATH template for variables.
+
 Arguments:
     INPATH      Input Jinja2 template used to generate the output; can be a single file or a directory.
     OUTPATH     Path of the generated output; either a file or directory based on the input template.
@@ -159,17 +163,23 @@ def make_dir(inpath, tmpldict, outpath=None, _roots=None):
         break
     return True
 
-def check_all(inpath):
-    tvars = []
-    for r,ds,fs in os.walk(inpath):
-        tvars += check_template(op.basename(r))
-        for f in fs:
-            fpath = op.join(r,f)
-            with open(fpath) as fi:
-                tvars += check_template(fi.read())
-    qprompt.echo("Found variables:")
-    for var in sorted(list(set(tvars))):
-        qprompt.echo("  " + var)
+def check(inpath, echo=False):
+    """Checks the inpath template for variables."""
+    tvars = check_template(op.basename(inpath))
+    if op.isfile(inpath):
+        with open(inpath) as fi:
+            tvars += check_template(fi.read())
+    else:
+        for r,ds,fs in os.walk(inpath):
+            for x in ds+fs:
+                xpath = op.join(r,x)
+                tvars += check(xpath)
+    tvars = sorted(list(set(tvars)))
+    if echo:
+        qprompt.echo("Found variables:")
+        for var in tvars:
+            qprompt.echo("  " + var)
+    return tvars
 
 def main():
     """This function implements the main logic."""
@@ -203,7 +213,7 @@ def main():
     tmpldict.update(tmplnest)
 
     if args['check']:
-        check_all(inpath)
+        check(inpath, echo=True)
     elif args['make']:
         make(inpath, tmpldict, outpath=outpath)
 
