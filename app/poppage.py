@@ -33,7 +33,7 @@ import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
-import auxly.filesys as filesys
+import auxly.filesys as fsys
 import qprompt
 import yaml
 from binaryornot.check import is_binary
@@ -106,7 +106,7 @@ def make(inpath, tmpldict, outpath=None):
 def make_file(inpath, tmpldict, outpath=None):
     inpath = op.abspath(inpath)
     if is_binary(inpath):
-        qprompt.status("Copying `%s`..." % (outpath), filesys.copy, [inpath,outpath])
+        qprompt.status("Copying `%s`..." % (outpath), fsys.copy, [inpath,outpath])
         return
     text = render_file(inpath, tmpldict)
     if text == None:
@@ -121,6 +121,8 @@ def make_file(inpath, tmpldict, outpath=None):
             outpath = opath
 
     # Handle rendered output.
+    outpath = op.abspath(outpath)
+    fsys.makedirs(op.dirname(outpath))
     if outpath:
         with open(outpath, "w") as f:
             qprompt.status("Writing `%s`..." % (outpath), f.write, [text])
@@ -146,7 +148,7 @@ def make_dir(inpath, tmpldict, outpath=None, _roots=None):
         mpath = mpath.replace(*_roots)
     else:
         _roots = (render_str(inpath, tmpldict), mpath)
-    qprompt.status("Making dir `%s`..." % (mpath), filesys.makedirs, [mpath])
+    qprompt.status("Making dir `%s`..." % (mpath), fsys.makedirs, [mpath])
 
     # Iterate over files and directories in parent only.
     for r,ds,fs in os.walk(inpath):
