@@ -16,7 +16,7 @@
 set OUTDIR=__output__
 
 :: Command used to generate a page.
-set GENCMD=python ..\..\app\poppage.py
+set GENCMD=python ..\..\app\poppage.py make
 
 :: Command used to generate timestamp string.
 set TSCMD=python -c "import time; print time.strftime('%%d %%B %%Y %%I:%%M%%p')"
@@ -61,9 +61,9 @@ set URL=%~4
 echo Generating %URL%...
 pandoc %SRC% > %OUTDIR%/%NAME%.temp
 %GENCMD% %TMPL% ^
-    --string="%TITLE%" title ^
-    --string="%TIMESTAMP%" timestamp ^
-    --file=%OUTDIR%/%NAME%.temp content ^
+    --string title "%TITLE%" ^
+    --string timestamp "%TIMESTAMP%" ^
+    --file content %OUTDIR%/%NAME%.temp ^
     > %OUTDIR%/%URL%
 del /S /Q *.temp 1>NUL
 goto:eof
