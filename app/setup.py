@@ -3,12 +3,12 @@ from setuptools import setup, find_packages
 
 setup(
     name = "poppage",
-    version = "0.2.0-alpha",
+    version = "0.2.0",
     author = "Jeff Rimko",
     author_email = "jeffrimko@gmail.com",
-    description = "TODO",
+    description = "Utility for generating files and directories.",
     license = "MIT",
-    keywords = "TODO",
+    keywords = "project-templates file-templates file-generation",
     url = "https://github.com/jeffrimko/PopPage",
     py_modules=["poppage"],
     scripts=["poppage.py","poppage.bat"],
