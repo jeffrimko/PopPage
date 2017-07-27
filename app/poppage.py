@@ -114,16 +114,17 @@ def make_file(inpath, tmpldict, outpath=None):
 
     # A rendered output path will be used if no explicit path provided.
     if outpath == None:
-        opath = render_str(inpath, tmpldict)
-        if not opath:
-            return False
-        if opath != inpath:
-            outpath = opath
+        if inpath.find("{{") > -1 and inpath.find("}}") > -1:
+            opath = render_str(inpath, tmpldict)
+            if not opath:
+                return False
+            if opath != inpath:
+                outpath = opath
 
     # Handle rendered output.
-    outpath = op.abspath(outpath)
-    fsys.makedirs(op.dirname(outpath))
     if outpath:
+        outpath = op.abspath(outpath)
+        fsys.makedirs(op.dirname(outpath))
         with open(outpath, "w") as f:
             qprompt.status("Writing `%s`..." % (outpath), f.write, [text])
     else:
