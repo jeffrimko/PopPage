@@ -1,5 +1,9 @@
 = PopPage Changelog
 
+== poppage-0.2.2 (2017-07-26)
+=== Fixed
+  - Fixed error related to `check` command and binary files.
+
 == poppage-0.2.1 (2017-07-26)
 === Fixed
   - Minor bug fix related to rendering file template to stdout.

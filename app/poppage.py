@@ -170,8 +170,9 @@ def check(inpath, echo=False):
     """Checks the inpath template for variables."""
     tvars = check_template(op.basename(inpath))
     if op.isfile(inpath):
-        with open(inpath) as fi:
-            tvars += check_template(fi.read())
+        if not is_binary(inpath):
+            with open(inpath) as fi:
+                tvars += check_template(fi.read())
     else:
         for r,ds,fs in os.walk(inpath):
             for x in ds+fs:
