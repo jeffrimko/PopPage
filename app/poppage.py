@@ -47,7 +47,7 @@ from jinja2schema import infer, model
 ##==============================================================#
 
 #: Application version string.
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 #: Key separator.
 KEYSEP = "->"
