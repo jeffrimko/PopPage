@@ -47,7 +47,7 @@ from jinja2schema import infer, model
 ##==============================================================#
 
 #: Application version string.
-__version__ = "poppage 0.2.0-alpha"
+__version__ = "0.2.0-alpha"
 
 #: Key separator.
 KEYSEP = "->"
@@ -185,8 +185,7 @@ def check(inpath, echo=False):
 
 def main():
     """This function implements the main logic."""
-    args = docopt(__doc__, version=__version__)
-
+    args = docopt(__doc__, version="poppage-%s" % (__version__))
     inpath = args['INPATH']
     outpath = args['OUTPATH']
     dfltfile = args['--defaults']
@@ -214,6 +213,7 @@ def main():
         tmpldict.pop(k)
     tmpldict.update(tmplnest)
 
+    # Handle command.
     if args['check']:
         check(inpath, echo=True)
     elif args['make']:

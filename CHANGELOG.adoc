@@ -1,0 +1,13 @@
+= PopPage Changelog
+
+== poppage-0.2.0 (2017-07-26)
+=== Highlights
+  - Major updates to interface and functionality.
+
+=== Changed
+  - CLI utility now has `make` and `check` commands.
+  - Changed the order of the `--string` and `--file` arguments.
+
+== poppage-0.1.0 (2015-05-29)
+=== Highlights
+  - First release.
