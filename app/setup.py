@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "poppage",
-    version = "0.2.1",
+    version = "0.2.2",
     author = "Jeff Rimko",
     author_email = "jeffrimko@gmail.com",
     description = "Utility for generating files and directories.",
