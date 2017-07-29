@@ -18,7 +18,7 @@ Options:
     --defaults=DFLTFILE     A YAML file with default template content.
     --string=KEY            Use the given string in VAR for the given template variable KEY.
     --file=KEY              Use the given file contents in PATH for the given template variable KEY.
-    --nestdelim=DELIM       Delimiter to use for specifying nested KEYs. [default: :#:]
+    --nestdelim=DELIM       Delimiter to use for specifying nested KEYs. [default: ::]
     -h --help               Show this help message and exit.
     --version               Show version and exit.
 """
@@ -27,11 +27,10 @@ Options:
 ## SECTION: Imports                                             #
 ##==============================================================#
 
+import collections
 import os
 import os.path as op
 import sys
-reload(sys)
-sys.setdefaultencoding("utf-8")
 
 import auxly.filesys as fsys
 import qprompt
@@ -41,6 +40,14 @@ from docopt import docopt
 from jinja2 import FileSystemLoader, Template, meta
 from jinja2.environment import Environment
 from jinja2schema import infer, model
+from auxly import shell as sh
+
+##==============================================================#
+## SECTION: Setup                                               #
+##==============================================================#
+
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 ##==============================================================#
 ## SECTION: Global Definitions                                  #
@@ -50,26 +57,43 @@ from jinja2schema import infer, model
 __version__ = "0.2.2"
 
 #: Key separator.
-KEYSEP = "->"
+KEYSEP = "::"
 
 ##==============================================================#
 ## SECTION: Function Definitions                                #
 ##==============================================================#
 
+def update(d, u):
+    """Updates a dictionary without replacing nested dictionaries. Code found
+    from `https://stackoverflow.com/a/3233356`."""
+    for k, v in u.items():
+        if isinstance(v, collections.Mapping):
+            r = update(d.get(k, {}), v)
+            d[k] = r
+        else:
+            d[k] = u[k]
+    return d
+
 def check_template(tmplstr, tmpldict=None):
+    def check_tmplitems(items, tmpldict, topkey=""):
+        missing = []
+        for key,val in items:
+            if type(val) == model.Dictionary:
+                missing += check_tmplitems(
+                        val.items(),
+                        tmpldict.get(key, {}),
+                        key if not topkey else "%s%s%s" % (topkey, KEYSEP, key))
+            else:
+                name = key if not topkey else "%s%s%s" % (topkey, KEYSEP, key)
+                try:
+                    if key not in tmpldict.keys():
+                        missing.append(name)
+                except:
+                    qprompt.warn("Issue checking var `%s`!" % (name))
+        return missing
+
     tmpldict = tmpldict or {}
-    missing = []
-    for key, val in infer(tmplstr).items():
-        if key not in tmpldict:
-            missing.append(key)
-        if type(val) == model.List:
-            for subkey in val.item.keys():
-                if subkey not in tmpldict[key][0]:
-                    missing.append("%s%s%s" % (key, KEYSEP, subkey))
-        elif type(val) == model.Dictionary:
-            for subkey in val.keys():
-                if subkey not in tmpldict.get(key,[]):
-                    missing.append("%s%s%s" % (key, KEYSEP, subkey))
+    missing = check_tmplitems(infer(tmplstr).items(), tmpldict)
     return missing
 
 def render_str(tmplstr, tmpldict):
@@ -185,35 +209,63 @@ def check(inpath, echo=False):
             qprompt.echo("  " + var)
     return tvars
 
+def parse_dict(args):
+    """Parses the given arguments into a template dictionary."""
+    class FileReader(str):
+        def __new__(cls, fpath):
+            with open(fpath) as fi:
+                return str.__new__(cls, fi.read())
+        def __repr__(self):
+            return self
+    class CmdExec(str):
+        def __new__(cls, cmd):
+            return str.__new__(cls, sh.strout(cmd))
+        def __repr__(self):
+            return self
+    def cmd_ctor(loader, node):
+        value = loader.construct_scalar(node)
+        return CmdExec(value)
+    def file_reader_ctor(loader, node):
+        value = loader.construct_scalar(node)
+        return FileReader(value)
+    yaml.add_constructor(u'!file', file_reader_ctor)
+    yaml.add_constructor(u'!cmd', cmd_ctor)
+
+    # Prepare template dictionary.
+    tmpldict = {}
+    dfltfile = args['--defaults']
+    if dfltfile:
+        tmpldict = yaml.load(open(dfltfile, "r").read())
+    tmpldict = update(tmpldict, {k:v for k,v in zip(args['--string'], args['VAL'])})
+    tmpldict = update(tmpldict, {k:open(v).read() for k,v in zip(args['--file'], args['PATH'])})
+
+    # Handle nested dictionaries.
+    topop = []
+    tmplnest = {}
+    delim = args['--nestdelim']
+    for k,v in tmpldict.iteritems():
+        if k.find(delim) > -1:
+            level = tmplnest
+            ks = k.split(delim)
+            for ln,sk in enumerate(ks):
+                level[sk] = {}
+                if len(ks)-1 == ln:
+                    level[sk] = v
+                else:
+                    level = level[sk]
+            topop.append(k)
+    for k in topop:
+        tmpldict.pop(k)
+    tmpldict = update(tmpldict, tmplnest)
+
+    return tmpldict
+
 def main():
     """This function implements the main logic."""
     args = docopt(__doc__, version="poppage-%s" % (__version__))
     inpath = args['INPATH']
     outpath = args['OUTPATH']
-    dfltfile = args['--defaults']
-
-    # Prepare template dictionary.
-    tmpldict = {}
-    if dfltfile:
-        defaults = yaml.load(open(dfltfile, "r").read())
-        tmpldict.update(defaults.get('string',{}))
-        tmpldict.update({k:open(v).read() for k,v in defaults.get('file',{}).iteritems()})
-    tmpldict.update({k:v for k,v in zip(args['--string'], args['VAL'])})
-    tmpldict.update({k:open(v).read() for k,v in zip(args['--file'], args['PATH'])})
-
-    # Handle nested dictionaries.
-    tmplnest = {}
-    topop = []
-    delim = args['--nestdelim']
-    for k,v in tmpldict.iteritems():
-        if k.find(delim) > -1:
-            sk,sv = k.split(delim)
-            tmplnest.setdefault(sk, {})
-            tmplnest[sk][sv] = v
-            topop.append(k)
-    for k in topop:
-        tmpldict.pop(k)
-    tmpldict.update(tmplnest)
+    tmpldict = parse_dict(args)
 
     # Handle command.
     if args['check']:

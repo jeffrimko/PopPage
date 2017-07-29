@@ -16,5 +16,6 @@
 rd /S /Q __output__
 rd /S /Q poppage.egg-info
 rd /S /Q dist
+rd /S /Q build
 del /S /Q *.log
 del /S /Q *.pyc
