@@ -5,7 +5,6 @@
 import os
 import subprocess
 import sys
-import qprompt
 
 ##==============================================================#
 ## SECTION: Function Definitions                                #
@@ -38,5 +37,5 @@ if __name__ == '__main__':
         pause = False
     okay = run_tests()
     if pause:
-        qprompt.pause()
+        _input("Press ENTER to continue...")
     sys.exit(0 if okay else 1)
