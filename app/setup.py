@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "poppage",
-    version = "0.2.2",
+    version = "0.3.0",
     author = "Jeff Rimko",
     author_email = "jeffrimko@gmail.com",
     description = "Utility for generating files and directories.",
@@ -19,4 +19,13 @@ setup(
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3"
     ],
+    install_requires=[
+        "auxly",
+        "binaryornot",
+        "docopt",
+        "jinja2",
+        "jinja2schema",
+        "pyyaml",
+        "qprompt",
+   ],
 )

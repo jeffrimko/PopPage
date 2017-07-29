@@ -1,0 +1,8 @@
+*.pyc
+*__backup*
+*__output*
+*__temp*
+.rundoc*
+build/
+dist/
+*.egg-info/

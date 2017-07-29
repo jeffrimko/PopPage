@@ -1,4 +1,4 @@
-"""Tests the make function."""
+"""Tests the make() function."""
 
 ##==============================================================#
 ## SECTION: Imports                                             #

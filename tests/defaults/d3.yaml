@@ -1,0 +1,4 @@
+name:
+    first: !file text/t1.txt
+    last: !file text/t2.txt
+num: five
