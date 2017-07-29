@@ -4,8 +4,9 @@
 PopPage is a simple command-line utility originally intended as a static website generator but has since grown into a https://github.com/audreyr/cookiecutter[cookiecutter] clone. The main features of PopPage are:
 
   - Uses http://jinja.pocoo.org/[Jinja2 templates] to generate output.
+  - Uses YAML to store default key/values for template variables.
   - Output can be single files or directories.
-  - The content applied to the templates can be strings or read from files directly on the command line.
+  - Key/values applied to the templates variables can specified on the command line.
 
 == Status
 Currently, this project is in the **development release** stage. While this project is suitable for use, please note that there may be incompatibilities in new releases.
