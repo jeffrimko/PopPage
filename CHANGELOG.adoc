@@ -1,5 +1,9 @@
 = PopPage Changelog
 
+== poppage-0.3.0 (2017-07-29)
+=== Highlights
+  - Added custom YAML tags for reading files and reading from CLI commands.
+
 == poppage-0.2.2 (2017-07-26)
 === Fixed
   - Fixed error related to `check` command and binary files.

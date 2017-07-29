@@ -23,30 +23,58 @@ call:ChkDep^
 call:ChkDep^
     "Docopt"^
     "Python library CLI argument handling."^
-    "http://docopt.org/"^
+    "https://pypi.python.org/pypi/docopt"^
     "latest"^
     python -c "import docopt"
 
 call:ChkDep^
     "PyYaml"^
     "Python library for YAML."^
-    "http://pyyaml.org/"^
+    "https://pypi.python.org/pypi/pyyaml"^
     "latest"^
     python -c "import yaml"
 
 call:ChkDep^
     "Verace"^
     "Python library for version checking."^
-    "github.com/jeffrimko/Verace"^
+    "https://pypi.python.org/pypi/verace"^
     "latest"^
     python -c "import verace"
 
 call:ChkDep^
     "Qprompt"^
     "Python library for CLI."^
-    "github.com/jeffrimko/Qprompt"^
+    "https://pypi.python.org/pypi/qprompt"^
     "latest"^
     python -c "import qprompt"
+
+call:ChkDep^
+    "Binaryornot"^
+    "Python library for checking filetypes."^
+    "https://pypi.python.org/pypi/binaryornot"^
+    "latest"^
+    python -c "import binaryornot"
+
+call:ChkDep^
+    "Jinja2"^
+    "Python template library."^
+    "https://pypi.python.org/pypi/jinja2"^
+    "latest"^
+    python -c "import jinja2"
+
+call:ChkDep^
+    "Jinja2schema"^
+    "Python template checking library."^
+    "https://pypi.python.org/pypi/jinja2schema"^
+    "latest"^
+    python -c "import jinja2schema"
+
+call:ChkDep^
+    "Auxly"^
+    "Python helper library."^
+    "https://pypi.python.org/pypi/auxly"^
+    "latest"^
+    python -c "import auxly"
 
 pause
 exit /b 0

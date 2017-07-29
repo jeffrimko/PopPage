@@ -14,19 +14,76 @@ Currently, this project is in the **development release** stage. While this proj
 PopPage should run on any Python 2.7/3.x interpreter without additional dependencies.
 
 == Usage
-The following is a quick example of using PopPage:
+PopPage can be run from the command line using `poppage`. Type `poppage --help` for usage information.
+
+=== Some Important Notes
+Before showing any examples, keep these notes in mind:
+
+  - Template file/directory names can contain template variables (e.g. `{{foo}}.txt`). The provided key/values will be used for the output file generation unless an explicit OUTPATH is provided.
+  - The output will be passed to `stdout` if INPATH is a file (rather than a directly) and the template filename does not contain a template variable and no OUTPATH is specified.
+
+=== CLI Key/Values
+The following is a quick example of using PopPage from the CLI:
 
   - Template file (`template.jinja2`):
 
-        Hello {{foo}}!
+        Hello {{name}}!
 
   - PopPage command:
 
-        poppage make template.jinja2 --string foo world
+        poppage make template.jinja2 --string name world
 
   - Output to `stdout`:
 
         Hello world!
+
+=== YAML Key/Values
+Additionally, default key/values can be stored in a YAML file:
+
+  - Template file (`template.jinja2`):
+
+        Hello {{name}}!
+
+  - Defaults file (`defaults.yaml`):
+
+        name: sun
+
+  - PopPage command:
+
+        poppage make template.jinja2 --defaults defaults.yaml
+
+  - Output to `stdout`:
+
+        Hello sun!
+
+=== Custom YAML Tags
+The following custom YAML tags are provided:
+
+  - `!file` - Reads value from a file.
+  - `!cmd` - Reads value from a CLI command output.
+
+Check out this example:
+
+  - Template file (`template.jinja2`):
+
+        Hello {{first}} {{last}}!
+
+  - Defaults file (`defaults.yaml`):
+
+        first: !file myfile.txt
+        last: !cmd python -c "print('Skywalker')"
+
+  - Content of `myfile.txt`:
+
+        Anakin
+
+  - PopPage command:
+
+        poppage make template.jinja2 --defaults defaults.yaml
+
+  - Output to `stdout`:
+
+        Hello Anakin Skywalker!
 
 == Similar
 The following projects are similar and may be worth checking out:
