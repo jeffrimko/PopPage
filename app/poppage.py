@@ -18,7 +18,7 @@ Options:
     --defaults=DFLTFILE     A YAML file with default template content.
     --string=KEY            Use the given string in VAR for the given template variable KEY.
     --file=KEY              Use the given file contents in PATH for the given template variable KEY.
-    --nestdelim=DELIM       Delimiter to use for specifying nested KEYs. [default: ::]
+    --keysep=KEYSEP         Delimiter to use for separating nested KEYs. [default: ::]
     -h --help               Show this help message and exit.
     --version               Show version and exit.
 """
@@ -33,6 +33,7 @@ import os.path as op
 import sys
 
 import auxly.filesys as fsys
+import auxly.shell as sh
 import qprompt
 import yaml
 from binaryornot.check import is_binary
@@ -40,7 +41,6 @@ from docopt import docopt
 from jinja2 import FileSystemLoader, Template, meta
 from jinja2.environment import Environment
 from jinja2schema import infer, model
-from auxly import shell as sh
 
 ##==============================================================#
 ## SECTION: Setup                                               #
@@ -241,11 +241,12 @@ def parse_dict(args):
     # Handle nested dictionaries.
     topop = []
     tmplnest = {}
-    delim = args['--nestdelim']
+    global KEYSEP
+    KEYSEP = args['--keysep']
     for k,v in tmpldict.iteritems():
-        if k.find(delim) > -1:
+        if k.find(KEYSEP) > -1:
             level = tmplnest
-            ks = k.split(delim)
+            ks = k.split(KEYSEP)
             for ln,sk in enumerate(ks):
                 level[sk] = level.get(sk, {})
                 if len(ks)-1 == ln:
