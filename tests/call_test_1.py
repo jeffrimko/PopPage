@@ -41,6 +41,12 @@ class TestCase(BaseTest):
         call("make ./templates/t4.jinja2 %s %s" % (args, OUTFILE))
         test.assertEqual(File(OUTFILE).read(), "foo,bar,baz")
 
+    def test_call_6(test):
+        """Check for basic make call functionality."""
+        args = "--defaults ./defaults/d3.yaml"
+        call("make ./templates/t2.jinja2 %s %s" % (args, OUTFILE))
+        test.assertEqual(File(OUTFILE).read(), "Hello Mister Bob!")
+
 ##==============================================================#
 ## SECTION: Main Body                                           #
 ##==============================================================#

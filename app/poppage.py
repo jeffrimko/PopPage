@@ -203,7 +203,7 @@ def parse_dict(args):
     class FileReader(str):
         def __new__(cls, fpath):
             with open(fpath) as fi:
-                return str.__new__(cls, fi.read())
+                return str.__new__(cls, fi.read().strip())
         def __repr__(self):
             return self
     class CmdExec(str):
@@ -236,7 +236,7 @@ def parse_dict(args):
     if dfltfile:
         tmpldict = yaml.load(open(dfltfile, "r").read())
     tmpldict = update(tmpldict, {k:v for k,v in zip(args['--string'], args['VAL'])})
-    tmpldict = update(tmpldict, {k:open(v).read() for k,v in zip(args['--file'], args['PATH'])})
+    tmpldict = update(tmpldict, {k:open(v).read().strip() for k,v in zip(args['--file'], args['PATH'])})
 
     # Handle nested dictionaries.
     topop = []
