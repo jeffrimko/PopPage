@@ -54,7 +54,7 @@ sys.setdefaultencoding("utf-8")
 ##==============================================================#
 
 #: Application version string.
-__version__ = "0.2.2"
+__version__ = "0.3.0"
 
 #: Key separator.
 KEYSEP = "::"
@@ -62,17 +62,6 @@ KEYSEP = "::"
 ##==============================================================#
 ## SECTION: Function Definitions                                #
 ##==============================================================#
-
-def update(d, u):
-    """Updates a dictionary without replacing nested dictionaries. Code found
-    from `https://stackoverflow.com/a/3233356`."""
-    for k, v in u.items():
-        if isinstance(v, collections.Mapping):
-            r = update(d.get(k, {}), v)
-            d[k] = r
-        else:
-            d[k] = u[k]
-    return d
 
 def check_template(tmplstr, tmpldict=None):
     def check_tmplitems(items, tmpldict, topkey=""):
@@ -228,6 +217,16 @@ def parse_dict(args):
     def file_reader_ctor(loader, node):
         value = loader.construct_scalar(node)
         return FileReader(value)
+    def update(d, u):
+        """Updates a dictionary without replacing nested dictionaries. Code found
+        from `https://stackoverflow.com/a/3233356`."""
+        for k, v in u.items():
+            if isinstance(v, collections.Mapping):
+                r = update(d.get(k, {}), v)
+                d[k] = r
+            else:
+                d[k] = u[k]
+        return d
     yaml.add_constructor(u'!file', file_reader_ctor)
     yaml.add_constructor(u'!cmd', cmd_ctor)
 
@@ -248,7 +247,7 @@ def parse_dict(args):
             level = tmplnest
             ks = k.split(delim)
             for ln,sk in enumerate(ks):
-                level[sk] = {}
+                level[sk] = level.get(sk, {})
                 if len(ks)-1 == ln:
                     level[sk] = v
                 else:
