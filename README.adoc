@@ -20,7 +20,7 @@ PopPage can be run from the command line using `poppage`. Type `poppage --help` 
 Before showing any examples, keep these notes in mind:
 
   - Template file/directory names can contain template variables (e.g. `{{foo}}.txt`). The provided key/values will be used for the output file generation unless an explicit OUTPATH is provided.
-  - The output will be passed to `stdout` if INPATH is a file (rather than a directly) and the template filename does not contain a template variable and no OUTPATH is specified.
+  - The output will be passed to `stdout` if INPATH is a file (rather than a directory) and INPATH does not contain a template variable and no OUTPATH is specified.
 
 === CLI Key/Values
 The following is a quick example of using PopPage from the CLI:
