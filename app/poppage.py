@@ -245,7 +245,7 @@ def parse_dict(args):
     tmplnest = {}
     global KEYSEP
     KEYSEP = args['--keysep']
-    for k,v in tmpldict.iteritems():
+    for k,v in tmpldict.items():
         if k.find(KEYSEP) > -1:
             level = tmplnest
             ks = k.split(KEYSEP)
