@@ -5,5 +5,12 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
-# command to run tests
+install:
+    - pip install auxly
+    - pip install binaryornot
+    - pip install docopt
+    - pip install jinja2
+    - pip install jinja2schema
+    - pip install pyyaml
+    - pip install qprompt
 script: 'python tests/_Run_Tests.py nopause'
