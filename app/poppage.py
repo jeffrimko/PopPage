@@ -46,8 +46,10 @@ from jinja2schema import infer, model
 ## SECTION: Setup                                               #
 ##==============================================================#
 
-reload(sys)
-sys.setdefaultencoding("utf-8")
+# Handle Python 2/3 differences.
+if sys.version_info < (3, 0):
+    reload(sys)
+    sys.setdefaultencoding("utf-8")
 
 ##==============================================================#
 ## SECTION: Global Definitions                                  #
