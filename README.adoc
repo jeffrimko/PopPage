@@ -10,6 +10,8 @@ PopPage is a simple command-line utility originally intended as a static website
 == Status
 Currently, this project is in the **development release** stage. While this project is suitable for use, please note that there may be incompatibilities in new releases.
 
+Release notes are maintained in the project https://github.com/jeffrimko/PopPage/blob/master/CHANGELOG.adoc[changelog].
+
 == Requirements
 PopPage should run on any Python 2.7/3.x interpreter without additional dependencies.
 
