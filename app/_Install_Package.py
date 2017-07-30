@@ -2,20 +2,19 @@
 ## SECTION: Imports                                             #
 ##==============================================================#
 
-import os
-import subprocess
+import auxly
 
 ##==============================================================#
 ## SECTION: Function Definitions                                #
 ##==============================================================#
 
 def generate_readme():
-    subprocess.call("asciidoctor -b docbook ../README.adoc", shell=True)
-    subprocess.call("pandoc -r docbook -w rst -o README.rst ../README.xml", shell=True)
-    os.remove("../README.xml")
+    auxly.shell.call("asciidoctor -b docbook ../README.adoc")
+    auxly.shell.call("pandoc -r docbook -w rst -o README.rst ../README.xml")
+    auxly.filesys.delete("../README.xml")
 
 def cleanup_readme():
-    os.remove("README.rst")
+    auxly.filesys.delete("README.rst")
 
 ##==============================================================#
 ## SECTION: Main Body                                           #
@@ -23,5 +22,5 @@ def cleanup_readme():
 
 if __name__ == '__main__':
     generate_readme()
-    subprocess.call("pip install -e .", shell=True)
+    auxly.shell.call("pip install -e .")
     cleanup_readme()
