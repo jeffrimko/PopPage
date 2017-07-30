@@ -69,7 +69,7 @@ if sys.version_info < (3, 0):
 ##==============================================================#
 
 #: Application version string.
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 #: Key separator.
 KEYSEP = "::"

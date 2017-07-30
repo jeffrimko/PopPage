@@ -12,7 +12,7 @@ from platform import system
 
 SCRIPTS = []
 if "Windows" == system():
-    SCRIPTS = ["poppage.bat"]
+    SCRIPTS = ["poppage.bat", "poppage.py"]
 if "Linux" == system():
     SCRIPTS = ["poppage"]
 
@@ -22,7 +22,7 @@ if "Linux" == system():
 
 setup(
     name = "poppage",
-    version = "0.3.0",
+    version = "0.3.1",
     author = "Jeff Rimko",
     author_email = "jeffrimko@gmail.com",
     description = "Utility for generating files and directories.",
