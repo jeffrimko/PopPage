@@ -1,7 +1,7 @@
 """PopPage is a utility for generating static web pages.
 
 Usage:
-    poppage make INPATH [--defaults DFLTFILE] [options] [(--string KEY VAL) | (--file KEY PATH)]... [OUTPATH]
+    poppage make INPATH [options] [(--string KEY VAL) | (--file KEY PATH)]... [OUTPATH]
     poppage check INPATH
     poppage -h | --help
     poppage --version
@@ -11,16 +11,29 @@ Commands:
     check   Check the given INPATH template for variables.
 
 Arguments:
-    INPATH      Input Jinja2 template used to generate the output; can be a single file or a directory.
-    OUTPATH     Path of the generated output; either a file or directory based on the input template.
+    INPATH      Input Jinja2 template used to generate the output; can be a
+                single file or a directory.
+    OUTPATH     Path of the generated output; either a file or directory based
+                on the input template.
 
 Options:
-    --defaults=DFLTFILE     A YAML file with default template content.
-    --string=KEY            Use the given string in VAR for the given template variable KEY.
-    --file=KEY              Use the given file contents in PATH for the given template variable KEY.
-    --keysep=KEYSEP         Delimiter to use for separating nested KEYs. [default: ::]
+    --defaults DFLTFILE     A YAML file with default template content.
+    --string KEY VAL        Use the given string VAL for the given template
+                            variable KEY.
+    --file KEY PATH         Use the given file contents in PATH for the given
+                            template variable KEY.
+    --keysep KEYSEP         Delimiter to use for separating nested KEYs.
+                            [default: ::]
     -h --help               Show this help message and exit.
     --version               Show version and exit.
+
+Notes:
+  - Template file/directory names can contain template variables (e.g.
+    `{{foo}}.txt`). The provided key/values will be used for the output file
+    generation unless an explicit OUTPATH is provided.
+  - The output will be passed to `stdout` if INPATH is a file (rather than a
+    directory) and INPATH does not contain a template variable and no OUTPATH
+    is specified.
 """
 
 ##==============================================================#
@@ -220,8 +233,8 @@ def parse_dict(args):
         value = loader.construct_scalar(node)
         return FileReader(value)
     def update(d, u):
-        """Updates a dictionary without replacing nested dictionaries. Code found
-        from `https://stackoverflow.com/a/3233356`."""
+        """Updates a dictionary without replacing nested dictionaries. Code
+        found from `https://stackoverflow.com/a/3233356`."""
         for k, v in u.items():
             if isinstance(v, collections.Mapping):
                 r = update(d.get(k, {}), v)
