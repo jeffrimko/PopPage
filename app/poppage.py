@@ -43,6 +43,7 @@ Notes:
 import collections
 import os
 import os.path as op
+import tempfile
 import sys
 
 import auxly.filesys as fsys
@@ -54,6 +55,8 @@ from docopt import docopt
 from jinja2 import FileSystemLoader, Template, meta
 from jinja2.environment import Environment
 from jinja2schema import infer, model
+
+import gitr
 
 ##==============================================================#
 ## SECTION: Setup                                               #
@@ -69,7 +72,7 @@ if sys.version_info < (3, 0):
 ##==============================================================#
 
 #: Application version string.
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 
 #: Key separator.
 KEYSEP = "::"
@@ -123,13 +126,26 @@ def render_file(tmplpath, tmpldict):
         return
     return tmpl.render(**tmpldict)
 
+def handle_inpath(inpath):
+    if gitr.is_github(inpath):
+        tpath = tempfile.mkdtemp(prefix="poppage-")
+        gitr.download(inpath, tpath)
+        fname = gitr.is_file(inpath)
+        if fname:
+            return op.join(tpath, fname), tpath
+        return tpath, tpath
+    return inpath, None
+
 def make(inpath, tmpldict, outpath=None):
     """Generates a file or directory based on the given input
     template/dictionary."""
+    inpath, to_delete = handle_inpath(inpath)
     if op.isfile(inpath):
         make_file(inpath, tmpldict, outpath=outpath)
     else:
         make_dir(inpath, tmpldict, outpath=outpath)
+    if to_delete:
+        fsys.delete(to_delete)
 
 def make_file(inpath, tmpldict, outpath=None):
     inpath = op.abspath(inpath)
