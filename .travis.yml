@@ -13,4 +13,5 @@ install:
     - pip install jinja2schema
     - pip install pyyaml
     - pip install qprompt
+    - pip install requests
 script: 'python tests/_Run_Tests.py nopause'

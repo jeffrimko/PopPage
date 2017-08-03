@@ -46,5 +46,6 @@ setup(
         "jinja2schema",
         "pyyaml",
         "qprompt",
+        "requests",
    ],
 )

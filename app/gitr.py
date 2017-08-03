@@ -3,8 +3,9 @@
 ##==============================================================#
 
 import os.path as op
-import requests
+
 import auxly.filesys as fsys
+import requests
 
 ##==============================================================#
 ## SECTION: Global Definitions                                  #
