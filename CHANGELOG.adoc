@@ -1,11 +1,15 @@
 = PopPage Changelog
 
+== poppage-0.3.2 (2017-08-02)
+=== Added
+  - Can now use GitHub URLs to specify template INPATH.
+
 == poppage-0.3.1 (2017-07-30)
 === Highlights
   - Better platform specific script handling.
 
 == poppage-0.3.0 (2017-07-29)
-=== Highlights
+=== Added
   - Added custom YAML tags for reading files and reading from CLI commands.
 
 == poppage-0.2.2 (2017-07-26)
