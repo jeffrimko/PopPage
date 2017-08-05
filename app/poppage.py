@@ -81,6 +81,25 @@ KEYSEP = "::"
 ## SECTION: Function Definitions                                #
 ##==============================================================#
 
+def handle_inpath(func):
+    def handler(inpath):
+        if gitr.is_github(inpath):
+            tpath = tempfile.mkdtemp(prefix="poppage-")
+            gitr.download(inpath, tpath)
+            fname = gitr.is_file(inpath)
+            if fname:
+                return op.join(tpath, fname), tpath
+            return tpath, tpath
+        return inpath, None
+    def inner(*args, **kwargs):
+        inpath, to_delete = handler(args[0])
+        args = tuple([inpath] + list(args[1:]))
+        retval = func(*args, **kwargs)
+        if to_delete:
+            fsys.delete(to_delete)
+        return retval
+    return inner
+
 def check_template(tmplstr, tmpldict=None):
     def check_tmplitems(items, tmpldict, topkey=""):
         missing = []
@@ -126,26 +145,14 @@ def render_file(tmplpath, tmpldict):
         return
     return tmpl.render(**tmpldict)
 
-def handle_inpath(inpath):
-    if gitr.is_github(inpath):
-        tpath = tempfile.mkdtemp(prefix="poppage-")
-        gitr.download(inpath, tpath)
-        fname = gitr.is_file(inpath)
-        if fname:
-            return op.join(tpath, fname), tpath
-        return tpath, tpath
-    return inpath, None
-
+@handle_inpath
 def make(inpath, tmpldict, outpath=None):
     """Generates a file or directory based on the given input
     template/dictionary."""
-    inpath, to_delete = handle_inpath(inpath)
     if op.isfile(inpath):
         make_file(inpath, tmpldict, outpath=outpath)
     else:
         make_dir(inpath, tmpldict, outpath=outpath)
-    if to_delete:
-        fsys.delete(to_delete)
 
 def make_file(inpath, tmpldict, outpath=None):
     inpath = op.abspath(inpath)
@@ -210,6 +217,7 @@ def make_dir(inpath, tmpldict, outpath=None, _roots=None):
         break
     return True
 
+@handle_inpath
 def check(inpath, echo=False):
     """Checks the inpath template for variables."""
     tvars = check_template(op.basename(inpath))
