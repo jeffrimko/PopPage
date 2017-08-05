@@ -2,10 +2,21 @@
 ## SECTION: Imports                                             #
 ##==============================================================#
 
+import sys
 import os.path as op
 
 import auxly.filesys as fsys
+import qprompt
 import requests
+
+##==============================================================#
+## SECTION: Setup                                               #
+##==============================================================#
+
+# Handle Python 2/3 differences.
+if sys.version_info < (3, 0):
+    reload(sys)
+    sys.setdefaultencoding("utf-8")
 
 ##==============================================================#
 ## SECTION: Global Definitions                                  #
@@ -33,7 +44,14 @@ def prep_url(url):
     raw content URL (for files)."""
     if url.startswith(GHURL):
         tok = url.split("/")[3:]
-        name = tok[-1]
+        if len(tok) > 4:
+            name = tok[-1]
+        else:
+            name = tok[1]
+            if 2 == len(tok):
+                tok.append("tree")
+            if 3 == len(tok):
+                tok.append("master")
         if "blob" == tok[2]:
             url = GHRAW
             url += "{0}/{1}/{3}/".format(*tok)
@@ -62,15 +80,17 @@ def download(srcurl, dstpath=None):
         items = requests.get(srcurl).json()
         if op.isfile(dstdir):
             raise Exception("DestDirIsFile")
-        fsys.makedirs(dstdir)
+        fsys.makedirs(dstdir, ignore_extsep=True)
+        if isinstance(items, dict) and "message" in items.keys():
+            qprompt.error(items['message'])
+            return
         for item in items:
             if "file" == item['type']:
                 fpath = op.join(dstdir, item['name'])
                 with open(fpath, "w") as fo:
                     fo.write(requests.get(item['download_url']).text)
             else:
-                dstdir = op.join(dstdir, item['name'])
-                download_api(item['url'], dstdir)
+                download_api(item['url'], op.join(dstdir, item['name']))
     def download_raw(srcurl, dstfile):
         fsys.makedirs(dstfile)
         if op.isdir(dstfile):
@@ -91,4 +111,9 @@ def download(srcurl, dstpath=None):
 ##==============================================================#
 
 if __name__ == '__main__':
-    pass
+    # print prep_url("https://github.com/jeffrimko/PopPageTemplates/blob/master/check_deps_batch/template.jinja2")
+    # print prep_url("https://raw.githubusercontent.com/jeffrimko/PopPageTemplates/master/check_deps_batch/template.jinja2")
+    # print prep_url("https://github.com/jeffrimko/Qprompt/tree/master")
+    # print prep_url("https://github.com/jeffrimko/Qprompt/tree")
+    download("https://github.com/pytest-dev/cookiecutter-pytest-plugin")
+    # print fsys.makedirs(r"C:\Users\Jeff\Dropbox\Projects\PopPage\Design\app\cookiecutter-pytest-plugin\pytest-{{cookiecutter.plugin_name}}", ignore_extsep=True)
