@@ -25,7 +25,7 @@ setup(
     version = "0.3.2",
     author = "Jeff Rimko",
     author_email = "jeffrimko@gmail.com",
-    description = "Utility for generating files and directories.",
+    description = "Utility for generating files and directories from templates.",
     license = "MIT",
     keywords = "project-templates file-templates file-generation",
     url = "https://github.com/jeffrimko/PopPage",
