@@ -70,6 +70,13 @@ call:ChkDep^
     python -c "import jinja2schema"
 
 call:ChkDep^
+    "Jinja2_time"^
+    "Jinja2 extension for time."^
+    "https://pypi.python.org/pypi/jinja2_time"^
+    "latest"^
+    python -c "import jinja2_time"
+
+call:ChkDep^
     "Auxly"^
     "Python helper library."^
     "https://pypi.python.org/pypi/auxly"^

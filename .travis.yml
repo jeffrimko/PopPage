@@ -10,6 +10,7 @@ install:
     - pip install binaryornot
     - pip install docopt
     - pip install jinja2
+    - pip install jinja2_time
     - pip install jinja2schema
     - pip install pyyaml
     - pip install qprompt
