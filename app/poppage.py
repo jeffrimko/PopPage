@@ -119,11 +119,14 @@ def check_template(tmplstr, tmpldict=None):
         return missing
 
     tmpldict = tmpldict or {}
-    missing = check_tmplitems(infer(tmplstr).items(), tmpldict)
+    try:
+        missing = check_tmplitems(infer(tmplstr).items(), tmpldict)
+    except:
+        missing = []
     return missing
 
 def render_str(tmplstr, tmpldict):
-    env = Environment()
+    env = Environment(extensions=['jinja2_time.TimeExtension'])
     miss = check_template(tmplstr, tmpldict)
     if miss:
         qprompt.error("Template vars `%s` were not supplied values!" % (
@@ -133,7 +136,7 @@ def render_str(tmplstr, tmpldict):
 
 def render_file(tmplpath, tmpldict):
     tmplpath = op.abspath(tmplpath)
-    env = Environment()
+    env = Environment(extensions=['jinja2_time.TimeExtension'])
     env.loader = FileSystemLoader(op.dirname(tmplpath))
     tmpl = env.get_template(op.basename(tmplpath))
     tmplstr = open(tmplpath).read()
