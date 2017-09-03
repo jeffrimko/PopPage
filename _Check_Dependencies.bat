@@ -77,6 +77,13 @@ call:ChkDep^
     python -c "import jinja2_time"
 
 call:ChkDep^
+    "Requests"^
+    "Python library for HTTP."^
+    "https://pypi.python.org/pypi/requests"^
+    "latest"^
+    python -c "import requests"
+
+call:ChkDep^
     "Auxly"^
     "Python helper library."^
     "https://pypi.python.org/pypi/auxly"^

@@ -72,7 +72,7 @@ if sys.version_info < (3, 0):
 ##==============================================================#
 
 #: Application version string.
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 
 #: Key separator.
 KEYSEP = "::"
@@ -139,7 +139,8 @@ def render_file(tmplpath, tmpldict):
     env = Environment(extensions=['jinja2_time.TimeExtension'])
     env.loader = FileSystemLoader(op.dirname(tmplpath))
     tmpl = env.get_template(op.basename(tmplpath))
-    tmplstr = open(tmplpath).read()
+    with open(tmplpath) as fo:
+        tmplstr = fo.read()
     miss = check_template(tmplstr, tmpldict)
     if miss:
         qprompt.error("Template vars `%s` in `%s` were not supplied values!" % (

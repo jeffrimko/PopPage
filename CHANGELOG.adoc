@@ -1,5 +1,13 @@
 = PopPage Changelog
 
+== poppage-0.3.3 (2017-09-03)
+=== Highlights
+  - Minor updates for better https://github.com/audreyr/cookiecutter[cookiecutter] compatibility.
+  - Minor updates to better handle GitHub URLs.
+
+=== Fixed
+  - Minor bug fix related to not closing open files.
+
 == poppage-0.3.2 (2017-08-02)
 === Added
   - Can now use GitHub URLs to specify template INPATH.
