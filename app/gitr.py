@@ -87,8 +87,9 @@ def download(srcurl, dstpath=None):
         for item in items:
             if "file" == item['type']:
                 fpath = op.join(dstdir, item['name'])
-                with open(fpath, "w") as fo:
-                    fo.write(requests.get(item['download_url']).text)
+                with open(fpath, "w", encoding="utf-8") as fo:
+                    text = requests.get(item['download_url']).text
+                    fo.write(text)
             else:
                 download_api(item['url'], op.join(dstdir, item['name']))
     def download_raw(srcurl, dstfile):
@@ -111,9 +112,4 @@ def download(srcurl, dstpath=None):
 ##==============================================================#
 
 if __name__ == '__main__':
-    # print prep_url("https://github.com/jeffrimko/PopPageTemplates/blob/master/check_deps_batch/template.jinja2")
-    # print prep_url("https://raw.githubusercontent.com/jeffrimko/PopPageTemplates/master/check_deps_batch/template.jinja2")
-    # print prep_url("https://github.com/jeffrimko/Qprompt/tree/master")
-    # print prep_url("https://github.com/jeffrimko/Qprompt/tree")
-    download("https://github.com/pytest-dev/cookiecutter-pytest-plugin")
-    # print fsys.makedirs(r"C:\Users\Jeff\Dropbox\Projects\PopPage\Design\app\cookiecutter-pytest-plugin\pytest-{{cookiecutter.plugin_name}}", ignore_extsep=True)
+    pass

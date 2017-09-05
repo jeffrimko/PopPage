@@ -81,19 +81,22 @@ KEYSEP = "::"
 ## SECTION: Function Definitions                                #
 ##==============================================================#
 
-def handle_inpath(func):
-    def handler(inpath):
+def handle_paths(func):
+    def handler(inpath, outpath):
         if gitr.is_github(inpath):
             tpath = tempfile.mkdtemp(prefix="poppage-")
             gitr.download(inpath, tpath)
             fname = gitr.is_file(inpath)
+            if outpath == None:
+                outpath = os.getcwd()
             if fname:
-                return op.join(tpath, fname), tpath
-            return tpath, tpath
-        return inpath, None
+                return op.join(tpath, fname), outpath, tpath
+            return tpath, outpath, tpath
+        return inpath, outpath, None
     def inner(*args, **kwargs):
-        inpath, to_delete = handler(args[0])
+        inpath, outpath, to_delete = handler(args[0], kwargs.get('outpath'))
         args = tuple([inpath] + list(args[1:]))
+        kwargs['outpath'] = outpath
         retval = func(*args, **kwargs)
         if to_delete:
             fsys.delete(to_delete)
@@ -137,8 +140,16 @@ def render_str(tmplstr, tmpldict):
 def render_file(tmplpath, tmpldict):
     tmplpath = op.abspath(tmplpath)
     env = Environment(extensions=['jinja2_time.TimeExtension'])
-    env.loader = FileSystemLoader(op.dirname(tmplpath))
-    tmpl = env.get_template(op.basename(tmplpath))
+    for encoding in ["utf-8", "mbcs"]:
+        try:
+            env.loader = FileSystemLoader(op.dirname(tmplpath), encoding=encoding)
+            tmpl = env.get_template(op.basename(tmplpath))
+            break
+        except UnicodeDecodeError:
+            qprompt.warn("Issue while decoding template with `%s`!" % encoding)
+    else:
+        qprompt.error("Unknown issue while loading template!")
+        exit()
     with open(tmplpath) as fo:
         tmplstr = fo.read()
     miss = check_template(tmplstr, tmpldict)
@@ -149,7 +160,7 @@ def render_file(tmplpath, tmpldict):
         return
     return tmpl.render(**tmpldict)
 
-@handle_inpath
+@handle_paths
 def make(inpath, tmpldict, outpath=None):
     """Generates a file or directory based on the given input
     template/dictionary."""
@@ -180,7 +191,7 @@ def make_file(inpath, tmpldict, outpath=None):
     if outpath:
         outpath = op.abspath(outpath)
         fsys.makedirs(op.dirname(outpath))
-        with open(outpath, "w") as f:
+        with open(outpath, "w", encoding="utf-8") as f:
             qprompt.status("Writing `%s`..." % (outpath), f.write, [text])
     else:
         qprompt.echo(text)
@@ -221,7 +232,7 @@ def make_dir(inpath, tmpldict, outpath=None, _roots=None):
         break
     return True
 
-@handle_inpath
+@handle_paths
 def check(inpath, echo=False):
     """Checks the inpath template for variables."""
     tvars = check_template(op.basename(inpath))
