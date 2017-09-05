@@ -2,6 +2,7 @@
 ## SECTION: Imports                                             #
 ##==============================================================#
 
+import io
 import sys
 import os.path as op
 
@@ -87,7 +88,7 @@ def download(srcurl, dstpath=None):
         for item in items:
             if "file" == item['type']:
                 fpath = op.join(dstdir, item['name'])
-                with open(fpath, "w", encoding="utf-8") as fo:
+                with io.open(fpath, "w", encoding="utf-8") as fo:
                     text = requests.get(item['download_url']).text
                     fo.write(text)
             else:
@@ -96,7 +97,7 @@ def download(srcurl, dstpath=None):
         fsys.makedirs(dstfile)
         if op.isdir(dstfile):
             dstfile = op.join(dstfile, srcurl.split("/")[-1])
-        with open(dstfile, "w") as fo:
+        with io.open(dstfile, "w") as fo:
             fo.write(requests.get(srcurl).text)
     url,name = prep_url(srcurl)
     if not dstpath:

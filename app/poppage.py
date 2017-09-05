@@ -41,10 +41,11 @@ Notes:
 ##==============================================================#
 
 import collections
+import io
 import os
 import os.path as op
-import tempfile
 import sys
+import tempfile
 
 import auxly.filesys as fsys
 import auxly.shell as sh
@@ -151,7 +152,7 @@ def render_file(tmplpath, tmpldict):
     else:
         qprompt.error("Unknown issue while loading template!")
         exit()
-    with open(tmplpath) as fo:
+    with io.open(tmplpath) as fo:
         tmplstr = fo.read()
     miss = check_template(tmplstr, tmpldict)
     if miss:
@@ -192,7 +193,7 @@ def make_file(inpath, tmpldict, outpath=None):
     if outpath:
         outpath = op.abspath(outpath)
         fsys.makedirs(op.dirname(outpath))
-        with open(outpath, "w", encoding="utf-8") as f:
+        with io.open(outpath, "w", encoding="utf-8") as f:
             qprompt.status("Writing `%s`..." % (outpath), f.write, [text])
     else:
         qprompt.echo(text)
@@ -239,7 +240,7 @@ def check(inpath, echo=False):
     tvars = check_template(op.basename(inpath))
     if op.isfile(inpath):
         if not is_binary(inpath):
-            with open(inpath) as fi:
+            with io.open(inpath) as fi:
                 tvars += check_template(fi.read())
     else:
         for r,ds,fs in os.walk(inpath):
@@ -257,7 +258,7 @@ def parse_dict(args):
     """Parses the given arguments into a template dictionary."""
     class FileReader(str):
         def __new__(cls, fpath):
-            with open(fpath) as fi:
+            with io.open(fpath) as fi:
                 return str.__new__(cls, fi.read().strip())
         def __repr__(self):
             return self
