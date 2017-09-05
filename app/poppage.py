@@ -96,7 +96,8 @@ def handle_paths(func):
     def inner(*args, **kwargs):
         inpath, outpath, to_delete = handler(args[0], kwargs.get('outpath'))
         args = tuple([inpath] + list(args[1:]))
-        kwargs['outpath'] = outpath
+        if "outpath" in kwargs:
+            kwargs['outpath'] = outpath
         retval = func(*args, **kwargs)
         if to_delete:
             fsys.delete(to_delete)
