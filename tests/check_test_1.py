@@ -45,6 +45,9 @@ class TestCase(BaseTest):
         """GitHub check functionality."""
         poppage.KEYSEP = "::"
         tvars = check("https://github.com/solarnz/cookiecutter-avr")
+        if not tvars:
+            print("Skipping check...")
+            return
         evars = []
         evars.append("cookiecutter::full_name")
         evars.append("cookiecutter::repo_name")
