@@ -88,6 +88,26 @@ Check out this example:
 
         Hello Anakin Skywalker!
 
+=== Cookiecutter Compatiblity
+PopPage should be compatible with many https://github.com/audreyr/cookiecutter[cookiecutter] templates. Using https://github.com/solarnz/cookiecutter-avr as an example, check for the variables in the template:
+
+    poppage check https://github.com/solarnz/cookiecutter-avr
+    # Found variables:
+    #   cookiecutter::full_name
+    #   cookiecutter::repo_name
+    #   cookiecutter::year
+
+Create a file to store your default values, for example `defaults.yaml`:
+
+    cookiecutter:
+        full_name: Henry Jones
+        repo_name: LastCrusade
+        year: 1989
+
+Run PopPage to generate your files:
+
+    poppage make https://github.com/solarnz/cookiecutter-avr --defaults defaults.yaml mydest
+
 == Similar
 The following projects are similar and may be worth checking out:
 

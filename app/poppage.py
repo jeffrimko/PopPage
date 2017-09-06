@@ -88,8 +88,11 @@ def handle_paths(func):
             tpath = tempfile.mkdtemp(prefix="poppage-")
             gitr.download(inpath, tpath)
             fname = gitr.is_file(inpath)
+            dname = gitr.is_dir(inpath)
             if outpath == None:
                 outpath = os.getcwd()
+                if dname:
+                    outpath = op.join(outpath, dname)
             if fname:
                 return op.join(tpath, fname), outpath, tpath
             return tpath, outpath, tpath
@@ -188,6 +191,8 @@ def make_file(inpath, tmpldict, outpath=None):
                 return False
             if opath != inpath:
                 outpath = opath
+    else:
+        opath = render_str(inpath, tmpldict)
 
     # Handle rendered output.
     if outpath:
@@ -210,6 +215,7 @@ def make_dir(inpath, tmpldict, outpath=None, _roots=None):
             return False
         mpath = op.join(outpath, dname)
     else:
+        outpath = render_str(outpath, tmpldict)
         mpath = op.abspath(outpath)
     if not mpath:
         return False

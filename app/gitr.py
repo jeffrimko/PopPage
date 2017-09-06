@@ -18,6 +18,9 @@ import requests
 if sys.version_info < (3, 0):
     reload(sys)
     sys.setdefaultencoding("utf-8")
+    from urllib import unquote
+else:
+    from urllib.parse import unquote
 
 ##==============================================================#
 ## SECTION: Global Definitions                                  #
@@ -73,6 +76,11 @@ def is_file(url):
     url,name = prep_url(url)
     if url.startswith(GHRAW):
         return name
+
+def is_dir(url):
+    if is_file(url):
+        return None
+    return unquote(url.split("/")[-1])
 
 def download(srcurl, dstpath=None):
     """Handles downloading files/dirs from the given GitHub repo URL to the
