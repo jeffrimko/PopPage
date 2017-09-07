@@ -107,6 +107,11 @@ Create a file to store your default values, for example `defaults.yaml`:
 Run PopPage to generate your files:
 
     poppage make https://github.com/solarnz/cookiecutter-avr --defaults defaults.yaml mydest
+    # This will generate the entire repo to a new directory named mydest.
+
+    # Or you can do:
+    poppage make https://github.com/solarnz/cookiecutter-avr/tree/master/%7B%7Bcookiecutter.repo_name%7D%7D --defaults defaults.yaml
+    # This will generate the {{cookiecutter.repo_name}} subdirectory to a new directory based on the given variables, in this case LastCrusade.
 
 == Similar
 The following projects are similar and may be worth checking out:

@@ -75,7 +75,7 @@ def is_file(url):
     returns None otherwise."""
     url,name = prep_url(url)
     if url.startswith(GHRAW):
-        return name
+        return unquote(name)
 
 def is_dir(url):
     if is_file(url):
@@ -105,6 +105,7 @@ def download(srcurl, dstpath=None):
         fsys.makedirs(dstfile)
         if op.isdir(dstfile):
             dstfile = op.join(dstfile, srcurl.split("/")[-1])
+        dstfile = unquote(dstfile)
         with io.open(dstfile, "w") as fo:
             fo.write(requests.get(srcurl).text)
     url,name = prep_url(srcurl)

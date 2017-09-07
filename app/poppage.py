@@ -82,31 +82,54 @@ KEYSEP = "::"
 ## SECTION: Function Definitions                                #
 ##==============================================================#
 
-def handle_paths(func):
-    def handler(inpath, outpath):
-        if gitr.is_github(inpath):
-            tpath = tempfile.mkdtemp(prefix="poppage-")
-            gitr.download(inpath, tpath)
-            fname = gitr.is_file(inpath)
-            dname = gitr.is_dir(inpath)
-            if outpath == None:
-                outpath = os.getcwd()
-                if dname:
-                    outpath = op.join(outpath, dname)
-            if fname:
-                return op.join(tpath, fname), outpath, tpath
-            return tpath, outpath, tpath
-        return inpath, outpath, None
-    def inner(*args, **kwargs):
-        inpath, outpath, to_delete = handler(args[0], kwargs.get('outpath'))
-        args = tuple([inpath] + list(args[1:]))
-        if "outpath" in kwargs:
-            kwargs['outpath'] = outpath
-        retval = func(*args, **kwargs)
-        if to_delete:
-            fsys.delete(to_delete)
-        return retval
-    return inner
+def handle_paths(**dkwargs):
+    def wrap(func):
+        def handler(inpath, outpath):
+            if gitr.is_github(inpath):
+                tpath = tempfile.mkdtemp(prefix="poppage-")
+                gitr.download(inpath, tpath)
+                fname = gitr.is_file(inpath)
+                dname = gitr.is_dir(inpath)
+                if outpath == None:
+                    outpath = os.getcwd()
+                    if dname:
+                        outpath = op.join(outpath, dname)
+                    elif fname:
+                        outpath = op.join(outpath, fname)
+                if fname:
+                    return op.join(tpath, fname), outpath, tpath
+                return tpath, outpath, tpath
+            return inpath, outpath, None
+        def inner(*fargs, **fkwargs):
+            inpath = fkwargs.get('inpath') or (
+                    fargs[dkwargs['inpath']] if (
+                        'inpath' in dkwargs.keys() and dkwargs['inpath'] < len(fargs))
+                    else None)
+            outpath = fkwargs.get('outpath') or (
+                    fargs[dkwargs['outpath']] if (
+                        'outpath' in dkwargs.keys() and dkwargs['outpath'] < len(fargs))
+                    else None)
+            inpath, outpath, to_delete = handler(inpath, outpath)
+            fargs = list(fargs)
+            # The following tries to intelligently handle function arguments so
+            # that this decorator can be generalized. Need to handle conditions
+            # where arguments may positional or keyword.
+            for var,key in ((inpath,"inpath"),(outpath,"outpath")):
+                if key in dkwargs.keys():
+                    if not var:
+                        continue
+                    if key in fkwargs.keys():
+                        fkwargs[key] = var
+                    elif dkwargs[key] < len(fargs):
+                        fargs[dkwargs[key]] = var
+                    else:
+                        fkwargs[key] = var
+            retval = func(*fargs, **fkwargs)
+            if to_delete:
+                fsys.delete(to_delete)
+            return retval
+        return inner
+    return wrap
 
 def check_template(tmplstr, tmpldict=None):
     def check_tmplitems(items, tmpldict, topkey=""):
@@ -165,8 +188,8 @@ def render_file(tmplpath, tmpldict):
         return
     return tmpl.render(**tmpldict)
 
-@handle_paths
-def make(inpath, tmpldict, outpath=None):
+@handle_paths(inpath=0,outpath=2)
+def make(inpath, tmpldict, outpath=None, **kwargs):
     """Generates a file or directory based on the given input
     template/dictionary."""
     if op.isfile(inpath):
@@ -176,6 +199,8 @@ def make(inpath, tmpldict, outpath=None):
 
 def make_file(inpath, tmpldict, outpath=None):
     inpath = op.abspath(inpath)
+    if outpath:
+        outpath = render_str(outpath, tmpldict)
     if is_binary(inpath):
         qprompt.status("Copying `%s`..." % (outpath), fsys.copy, [inpath,outpath])
         return
@@ -240,8 +265,8 @@ def make_dir(inpath, tmpldict, outpath=None, _roots=None):
         break
     return True
 
-@handle_paths
-def check(inpath, echo=False):
+@handle_paths(inpath=0)
+def check(inpath, echo=False, **kwargs):
     """Checks the inpath template for variables."""
     tvars = check_template(op.basename(inpath))
     if op.isfile(inpath):

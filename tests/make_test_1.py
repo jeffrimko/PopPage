@@ -24,6 +24,10 @@ class TestCase(BaseTest):
         make("./templates/t2.jinja2", {'name':{'first':"Mister",'last':"Bob"}}, OUTFILE)
         test.assertEqual(File(OUTFILE).read(), "Hello Mister Bob!")
 
+    def test_make_3(test):
+        make("https://github.com/solarnz/cookiecutter-avr/blob/master/%7B%7Bcookiecutter.repo_name%7D%7D/%7B%7Bcookiecutter.repo_name%7D%7D.c", {'cookiecutter':{'repo_name':"MyTest"}})
+        test.assertTrue(op.exists("MyTest.c"))
+
 ##==============================================================#
 ## SECTION: Main Body                                           #
 ##==============================================================#
