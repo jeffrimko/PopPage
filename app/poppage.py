@@ -193,31 +193,23 @@ def make(inpath, tmpldict, outpath=None, **kwargs):
     """Generates a file or directory based on the given input
     template/dictionary."""
     if op.isfile(inpath):
-        make_file(inpath, tmpldict, outpath=outpath)
+        return make_file(inpath, tmpldict, outpath=outpath)
     else:
-        make_dir(inpath, tmpldict, outpath=outpath)
+        return make_dir(inpath, tmpldict, outpath=outpath)
 
 def make_file(inpath, tmpldict, outpath=None):
     inpath = op.abspath(inpath)
     if outpath:
         outpath = render_str(outpath, tmpldict)
+        if op.isdir(outpath):
+            outpath = op.join(outpath, op.basename(inpath))
+            outpath = render_str(outpath, tmpldict)
     if is_binary(inpath):
         qprompt.status("Copying `%s`..." % (outpath), fsys.copy, [inpath,outpath])
         return
     text = render_file(inpath, tmpldict)
     if text == None:
         return False
-
-    # A rendered output path will be used if no explicit path provided.
-    if outpath == None:
-        if inpath.find("{{") > -1 and inpath.find("}}") > -1:
-            opath = render_str(inpath, tmpldict)
-            if not opath:
-                return False
-            if opath != inpath:
-                outpath = opath
-    else:
-        opath = render_str(inpath, tmpldict)
 
     # Handle rendered output.
     if outpath:
@@ -366,3 +358,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    # print(check("https://github.com/Ars2014/cookiecutter-telegram-bot/blob/master/cookiecutter.json"))
