@@ -1,5 +1,9 @@
 = PopPage Changelog
 
+== poppage-0.4.0 (2017-10-19)
+=== Highlights
+  - Added first draft of `run` command.
+
 == poppage-0.3.3 (2017-09-03)
 === Highlights
   - Minor updates for better https://github.com/audreyr/cookiecutter[cookiecutter] compatibility.

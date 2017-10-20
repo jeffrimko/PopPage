@@ -41,19 +41,6 @@ class TestCase(BaseTest):
         tvars = check("./templates/t3.jinja2")
         test.assertEqual(sorted(tvars), ["name->first", "name->last", "num"])
 
-    def test_check_6(test):
-        """GitHub check functionality."""
-        poppage.KEYSEP = "::"
-        tvars = check("https://github.com/solarnz/cookiecutter-avr")
-        if not tvars:
-            print("Skipping check...")
-            return
-        evars = []
-        evars.append("cookiecutter::full_name")
-        evars.append("cookiecutter::repo_name")
-        evars.append("cookiecutter::year")
-        test.assertEqual(sorted(tvars), sorted(evars))
-
 ##==============================================================#
 ## SECTION: Main Body                                           #
 ##==============================================================#

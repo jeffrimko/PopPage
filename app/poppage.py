@@ -3,12 +3,14 @@
 Usage:
     poppage make INPATH [options] [(--string KEY VAL) | (--file KEY PATH)]... [OUTPATH]
     poppage check INPATH
+    poppage run INPATH
     poppage -h | --help
     poppage --version
 
 Commands:
     make    Generates directories and files based on the given INPATH template.
     check   Check the given INPATH template for variables.
+    run     TODO
 
 Arguments:
     INPATH      Input Jinja2 template used to generate the output; can be a
@@ -73,7 +75,7 @@ if sys.version_info < (3, 0):
 ##==============================================================#
 
 #: Application version string.
-__version__ = "0.3.3"
+__version__ = "0.4.0"
 
 #: Key separator.
 KEYSEP = "::"
@@ -351,6 +353,16 @@ def main():
         check(inpath, echo=True)
     elif args['make']:
         make(inpath, tmpldict, outpath=outpath)
+    elif args['run']:
+        tmpldict = yaml.load(open(inpath, "r").read())
+        runinfo = tmpldict.get('__run__', {})
+        inpath = runinfo.get('inpath')
+        outpath = runinfo.get('outpath')
+        make(inpath, tmpldict, outpath=outpath)
+        qprompt.hrule()
+        for line in runinfo.get('execute', "").splitlines():
+            sh.call(line)
+        fsys.delete(outpath)
 
 ##==============================================================#
 ## SECTION: Main Body                                           #
