@@ -3,7 +3,7 @@
 Usage:
     poppage make INPATH [options] [(--string KEY VAL) | (--file KEY PATH)]... [OUTPATH]
     poppage check INPATH
-    poppage run INPATH
+    poppage run DFLTFILE
     poppage -h | --help
     poppage --version
 
@@ -17,6 +17,7 @@ Arguments:
                 single file or a directory.
     OUTPATH     Path of the generated output; either a file or directory based
                 on the input template.
+    DFLTFILE    TODO
 
 Options:
     --defaults DFLTFILE     A YAML file with default template content.
@@ -46,8 +47,10 @@ import collections
 import io
 import os
 import os.path as op
+import random
 import sys
 import tempfile
+from string import ascii_lowercase
 
 import auxly.filesys as fsys
 import auxly.shell as sh
@@ -83,6 +86,9 @@ KEYSEP = "::"
 ##==============================================================#
 ## SECTION: Function Definitions                                #
 ##==============================================================#
+
+#: Random uppercase string of length x.
+_getrands = lambda x: "".join(random.choice(ascii_lowercase) for _ in range(x))
 
 def handle_paths(**dkwargs):
     def wrap(func):
@@ -341,11 +347,27 @@ def parse_dict(args):
 
     return tmpldict
 
+def run(dfltfile):
+    """Handles logic for `run` command."""
+    tmpldict = yaml.load(open(dfltfile, "r").read())
+    runinfo = tmpldict.get('__run__', {})
+    inpath = runinfo.get('inpath')
+    outpath = runinfo.get('outpath')
+    if not outpath:
+        outpath = "__temp-poppage-" + _getrands(6) + runinfo.get('outext', "")
+    make(inpath, tmpldict, outpath=outpath)
+    qprompt.hrule()
+    for line in render_str(runinfo.get('execute', outpath), locals()).splitlines():
+        sh.call(line)
+    if runinfo.get('delete', True):
+        fsys.delete(outpath)
+
 def main():
     """This function implements the main logic."""
     args = docopt(__doc__, version="poppage-%s" % (__version__))
     inpath = args['INPATH']
     outpath = args['OUTPATH']
+    dfltfile = args['DFLTFILE']
     tmpldict = parse_dict(args)
 
     # Handle command.
@@ -354,15 +376,7 @@ def main():
     elif args['make']:
         make(inpath, tmpldict, outpath=outpath)
     elif args['run']:
-        tmpldict = yaml.load(open(inpath, "r").read())
-        runinfo = tmpldict.get('__run__', {})
-        inpath = runinfo.get('inpath')
-        outpath = runinfo.get('outpath')
-        make(inpath, tmpldict, outpath=outpath)
-        qprompt.hrule()
-        for line in runinfo.get('execute', "").splitlines():
-            sh.call(line)
-        fsys.delete(outpath)
+        run(dfltfile)
 
 ##==============================================================#
 ## SECTION: Main Body                                           #
