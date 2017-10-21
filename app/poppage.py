@@ -1,9 +1,9 @@
-"""PopPage is a utility for generating static web pages.
+"""PopPage is a utility for generating output from templates.
 
 Usage:
     poppage make INPATH [options] [(--string KEY VAL) | (--file KEY PATH)]... [OUTPATH]
     poppage check INPATH
-    poppage run DFLTFILE
+    poppage run DFLTFILE [(--string KEY VAL) | (--file KEY PATH)]...
     poppage -h | --help
     poppage --version
 
@@ -347,17 +347,20 @@ def parse_dict(args):
 
     return tmpldict
 
-def run(dfltfile):
+def run(dfltfile, defaults={}):
     """Handles logic for `run` command."""
     tmpldict = yaml.load(open(dfltfile, "r").read())
+    tmpldict.update(defaults)
     runinfo = tmpldict.get('__run__', {})
     inpath = runinfo.get('inpath')
     outpath = runinfo.get('outpath')
+    locals().update(tmpldict)
     if not outpath:
         outpath = "__temp-poppage-" + _getrands(6) + runinfo.get('outext', "")
     make(inpath, tmpldict, outpath=outpath)
     qprompt.hrule()
-    for line in render_str(runinfo.get('execute', outpath), locals()).splitlines():
+    execute = render_str(runinfo.get('execute', outpath), locals())
+    for line in execute.splitlines():
         sh.call(line)
     if runinfo.get('delete', True):
         fsys.delete(outpath)
@@ -376,7 +379,7 @@ def main():
     elif args['make']:
         make(inpath, tmpldict, outpath=outpath)
     elif args['run']:
-        run(dfltfile)
+        run(dfltfile, tmpldict)
 
 ##==============================================================#
 ## SECTION: Main Body                                           #
