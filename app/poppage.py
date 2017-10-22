@@ -1,9 +1,9 @@
 """PopPage is a utility for generating output from templates.
 
 Usage:
-    poppage make INPATH [options] [(--string KEY VAL) | (--file KEY PATH)]... [OUTPATH]
-    poppage check INPATH
-    poppage run DFLTFILE [(--string KEY VAL) | (--file KEY PATH)]...
+    poppage make [options] [(--string KEY VAL) | (--file KEY PATH)]...
+    poppage check [options]
+    poppage run [options] [(--string KEY VAL) | (--file KEY PATH)]...
     poppage -h | --help
     poppage --version
 
@@ -12,15 +12,14 @@ Commands:
     check   Check the given INPATH template for variables.
     run     TODO
 
-Arguments:
-    INPATH      Input Jinja2 template used to generate the output; can be a
-                single file or a directory.
-    OUTPATH     Path of the generated output; either a file or directory based
-                on the input template.
-    DFLTFILE    TODO
-
 Options:
+    --inpath INPATH         Input Jinja2 template used to generate the output;
+                            can be a single file or a directory.
     --defaults DFLTFILE     A YAML file with default template content.
+    --outpath OUTPATH       Path of the generated output; either a file or
+                            directory based on the input template.
+    --execute EXECUTE       Commands to execute after rendering template. Only
+                            applies to run command.
     --string KEY VAL        Use the given string VAL for the given template
                             variable KEY.
     --file KEY PATH         Use the given file contents in PATH for the given
@@ -185,7 +184,7 @@ def render_file(tmplpath, tmpldict):
             qprompt.warn("Issue while decoding template with `%s`!" % encoding)
     else:
         qprompt.error("Unknown issue while loading template!")
-        exit()
+        sys.exit(1)
     with io.open(tmplpath) as fo:
         tmplstr = fo.read()
     miss = check_template(tmplstr, tmpldict)
@@ -285,7 +284,7 @@ def check(inpath, echo=False, **kwargs):
             qprompt.echo("  " + var)
     return tvars
 
-def parse_dict(args):
+def parse_args(args):
     """Parses the given arguments into a template dictionary."""
     class FileReader(str):
         def __new__(cls, fpath):
@@ -345,41 +344,50 @@ def parse_dict(args):
         tmpldict.pop(k)
     tmpldict = update(tmpldict, tmplnest)
 
-    return tmpldict
+    # Prepare the utility dictionary.
+    utildict = {}
+    for key in ['inpath', 'outpath', 'execute']:
+        utildict[key] = args.get("--" + key) or (tmpldict.get('__def__', {}) or {}).get(key)
+    if "__def__" in tmpldict.keys():
+        tmpldict.pop('__def__')
 
-def run(dfltfile, defaults={}):
+    return utildict, tmpldict
+
+def run(inpath, tmpldict, outpath=None, execute=None):
     """Handles logic for `run` command."""
-    tmpldict = yaml.load(open(dfltfile, "r").read())
-    tmpldict.update(defaults)
-    runinfo = tmpldict.get('__run__', {})
-    inpath = runinfo.get('inpath')
-    outpath = runinfo.get('outpath')
-    locals().update(tmpldict)
     if not outpath:
-        outpath = "__temp-poppage-" + _getrands(6) + runinfo.get('outext', "")
+        outpath = "__temp-poppage-" + _getrands(6)
     make(inpath, tmpldict, outpath=outpath)
     qprompt.hrule()
-    execute = render_str(runinfo.get('execute', outpath), locals())
+    if not execute:
+        execute = outpath
+    tmpldict.update({'outpath': outpath})
+    execute = render_str(execute, tmpldict)
     for line in execute.splitlines():
         sh.call(line)
-    if runinfo.get('delete', True):
-        fsys.delete(outpath)
 
 def main():
     """This function implements the main logic."""
     args = docopt(__doc__, version="poppage-%s" % (__version__))
-    inpath = args['INPATH']
-    outpath = args['OUTPATH']
-    dfltfile = args['DFLTFILE']
-    tmpldict = parse_dict(args)
+    utildict, tmpldict = parse_args(args)
+
+    # Check required conditions.
+    if not utildict.get('inpath'):
+        qprompt.error("Must supply INPATH!")
+        sys.exit(1)
+    if not tmpldict:
+        qprompt.error("Must supply template variables!")
+        sys.exit(1)
 
     # Handle command.
     if args['check']:
-        check(inpath, echo=True)
+        check(utildict['inpath'], echo=True)
     elif args['make']:
-        make(inpath, tmpldict, outpath=outpath)
+        make(utildict['inpath'], tmpldict, outpath=utildict['outpath'])
     elif args['run']:
-        run(dfltfile, tmpldict)
+        run(utildict['inpath'], tmpldict,
+                outpath=utildict['outpath'],
+                execute=utildict['execute'])
 
 ##==============================================================#
 ## SECTION: Main Body                                           #
@@ -387,4 +395,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    # print(check("https://github.com/Ars2014/cookiecutter-telegram-bot/blob/master/cookiecutter.json"))
