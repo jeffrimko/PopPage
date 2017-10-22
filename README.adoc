@@ -17,7 +17,11 @@ Release notes are maintained in the project https://github.com/jeffrimko/PopPage
 PopPage should run on any Python 2.7/3.x interpreter without additional dependencies.
 
 == Usage
-PopPage can be run from the command line using `poppage`. Type `poppage --help` for usage information.
+PopPage can be run from the command line using `poppage`. Type `poppage --help` for usage information. The following subcommands are available:
+
+  - `check` - Check the given INPATH template for variables.
+  - `make` - Generates directories and files based on the given INPATH template.
+  - `run` - Generates the OUTPATH, executes commands, then deletes OUTPATH.
 
 === Some Important Notes
 Before showing any examples, keep these notes in mind:
@@ -34,7 +38,7 @@ The following is a quick example of using PopPage from the CLI:
 
   - PopPage command:
 
-        poppage make template.jinja2 --string name world
+        poppage make --inpath template.jinja2 --string name world
 
   - Output to `stdout`:
 
@@ -53,7 +57,7 @@ Additionally, default key/values can be stored in a YAML file:
 
   - PopPage command:
 
-        poppage make template.jinja2 --defaults defaults.yaml
+        poppage make --inpath template.jinja2 --defaults defaults.yaml
 
   - Output to `stdout`:
 
@@ -82,16 +86,40 @@ Check out this example:
 
   - PopPage command:
 
-        poppage make template.jinja2 --defaults defaults.yaml
+        poppage make --inpath template.jinja2 --defaults defaults.yaml
 
   - Output to `stdout`:
 
         Hello Anakin Skywalker!
 
+=== Option Defaults
+Default utility options can be provided in the defaults file under the `__def__` root key.
+
+Check out these examples:
+
+  - Basic option defaults:
+
+        __def__:
+            inpath: template.jinja2
+            outpath: myfile.txt
+
+  - Another options example:
+
+        __def__:
+            inpath: template.jinja2
+            outpath: myfile.py
+            execute: python myfile.py
+
+  - The execute option can be a template:
+
+        __def__:
+            inpath: template.jinja2
+            execute: python {{outpath}}
+
 === Cookiecutter Compatiblity
 PopPage should be compatible with many https://github.com/audreyr/cookiecutter[cookiecutter] templates. Using https://github.com/solarnz/cookiecutter-avr as an example, check for the variables in the template:
 
-    poppage check https://github.com/solarnz/cookiecutter-avr
+    poppage check --inpath https://github.com/solarnz/cookiecutter-avr
     # Found variables:
     #   cookiecutter::full_name
     #   cookiecutter::repo_name
@@ -106,11 +134,11 @@ Create a file to store your default values, for example `defaults.yaml`:
 
 Run PopPage to generate your files:
 
-    poppage make https://github.com/solarnz/cookiecutter-avr --defaults defaults.yaml mydest
+    poppage make --inpath https://github.com/solarnz/cookiecutter-avr --defaults defaults.yaml mydest
     # This will generate the entire repo to a new directory named mydest.
 
     # Or you can do:
-    poppage make https://github.com/solarnz/cookiecutter-avr/tree/master/%7B%7Bcookiecutter.repo_name%7D%7D --defaults defaults.yaml
+    poppage make --inpath https://github.com/solarnz/cookiecutter-avr/tree/master/%7B%7Bcookiecutter.repo_name%7D%7D --defaults defaults.yaml
     # This will generate the {{cookiecutter.repo_name}} subdirectory to a new directory based on the given variables, in this case LastCrusade.
 
 == Similar

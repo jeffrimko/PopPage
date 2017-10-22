@@ -8,9 +8,9 @@ Usage:
     poppage --version
 
 Commands:
-    make    Generates directories and files based on the given INPATH template.
     check   Check the given INPATH template for variables.
-    run     Generates the output, executes commands, then deletes the output.
+    make    Generates directories and files based on the given INPATH template.
+    run     Generates the OUTPATH, executes commands, then deletes OUTPATH.
 
 Options:
     --inpath INPATH         Input Jinja2 template used to generate the output;
