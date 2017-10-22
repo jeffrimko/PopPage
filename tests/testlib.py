@@ -33,6 +33,8 @@ OUTFILE = OUTDIR + "/outfile.txt"
 ##==============================================================#
 
 class BaseTest(unittest.TestCase):
+    def setUp(test):
+        makedirs(OUTDIR)
     def tearDown(test):
         super(BaseTest, test).tearDown()
         while op.exists("./__output__"):

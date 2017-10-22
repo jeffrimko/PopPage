@@ -10,7 +10,7 @@ Usage:
 Commands:
     make    Generates directories and files based on the given INPATH template.
     check   Check the given INPATH template for variables.
-    run     TODO
+    run     Generates the output, executes commands, then deletes the output.
 
 Options:
     --inpath INPATH         Input Jinja2 template used to generate the output;
@@ -139,6 +139,9 @@ def handle_paths(**dkwargs):
     return wrap
 
 def check_template(tmplstr, tmpldict=None):
+    """Checks the given template string against the given template variable
+    dictionary. Returns a list of variables not provided in the given
+    dictionary."""
     def check_tmplitems(items, tmpldict, topkey=""):
         missing = []
         for key,val in items:
@@ -164,6 +167,8 @@ def check_template(tmplstr, tmpldict=None):
     return missing
 
 def render_str(tmplstr, tmpldict):
+    """Renders the given template string using the given template variable
+    dictionary. Returns the rendered text as a string."""
     env = Environment(extensions=['jinja2_time.TimeExtension'])
     miss = check_template(tmplstr, tmpldict)
     if miss:
@@ -173,6 +178,8 @@ def render_str(tmplstr, tmpldict):
     return Template(tmplstr).render(**tmpldict)
 
 def render_file(tmplpath, tmpldict):
+    """Renders the template file and the given path using the given template
+    variable dictionary. Returns the rendered text as a string."""
     tmplpath = op.abspath(tmplpath)
     env = Environment(extensions=['jinja2_time.TimeExtension'])
     for encoding in ["utf-8", "mbcs"]:
@@ -347,8 +354,15 @@ def parse_args(args):
     # Prepare the utility dictionary.
     utildict = {}
     for key in ['inpath', 'outpath', 'execute']:
-        utildict[key] = args.get("--" + key) or (tmpldict.get('__def__', {}) or {}).get(key)
+        utildict[key] = args.get("--" + key)
     if "__def__" in tmpldict.keys():
+        for key in ['execute']:
+            utildict[key] =  (tmpldict.get('__def__', {}) or {}).get(key)
+        # Make paths absolute based on the location of the defaults file.
+        for key in ['inpath', 'outpath']:
+            utildict[key] =  (tmpldict.get('__def__', {}) or {}).get(key)
+            if not op.isabs(utildict[key]):
+                utildict[key] = op.abspath(op.join(op.dirname(dfltfile), utildict[key]))
         tmpldict.pop('__def__')
 
     return utildict, tmpldict
@@ -365,6 +379,7 @@ def run(inpath, tmpldict, outpath=None, execute=None):
     execute = render_str(execute, tmpldict)
     for line in execute.splitlines():
         sh.call(line)
+    fsys.delete(outpath)
 
 def main():
     """This function implements the main logic."""
