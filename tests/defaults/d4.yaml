@@ -1,5 +1,5 @@
 __def__:
-    inpath: ..\templates\t5.jinja2
-    outpath: ..\__output__\out.py
+    inpath: ../templates/t5.jinja2
+    outpath: ../__output__/out.py
 filename: foo.txt
 text: bar

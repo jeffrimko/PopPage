@@ -362,7 +362,7 @@ def parse_args(args):
         for key in ['inpath', 'outpath']:
             utildict[key] =  (tmpldict.get('__def__', {}) or {}).get(key)
             if not op.isabs(utildict[key]):
-                utildict[key] = op.abspath(op.join(op.dirname(dfltfile), utildict[key]))
+                utildict[key] = op.abspath(op.normpath(op.join(op.dirname(dfltfile), utildict[key])))
         tmpldict.pop('__def__')
 
     return utildict, tmpldict
