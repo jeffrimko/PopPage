@@ -1,5 +1,10 @@
 = PopPage Changelog
 
+== poppage-0.5.0 (2017-10-22)
+=== Highlights
+  - Changed CLI signature, INPATH/OUTPATH are now options rather than positional arguments.
+  - The `make` and `run` commands will use option defaults provided in the defaults YAML file under `__def__` key.
+
 == poppage-0.4.0 (2017-10-19)
 === Highlights
   - Added first draft of `run` command.
