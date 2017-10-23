@@ -293,23 +293,32 @@ def check(inpath, echo=False, **kwargs):
 
 def parse_args(args):
     """Parses the given arguments into a template dictionary."""
+    class CmdExec(str):
+        def __new__(cls, cmd):
+            return str.__new__(cls, sh.strout(cmd))
+        def __repr__(self):
+            return self
     class FileReader(str):
         def __new__(cls, fpath):
             with io.open(fpath) as fi:
                 return str.__new__(cls, fi.read().strip())
         def __repr__(self):
             return self
-    class CmdExec(str):
-        def __new__(cls, cmd):
-            return str.__new__(cls, sh.strout(cmd))
+    class IncludeLoader(object):
+        def __new__(cls, fpath):
+            with io.open(fpath) as fi:
+                return yaml.load(fi.read())
         def __repr__(self):
-            return self
+            return str(self)
     def cmd_ctor(loader, node):
         value = loader.construct_scalar(node)
         return CmdExec(value)
     def file_reader_ctor(loader, node):
         value = loader.construct_scalar(node)
         return FileReader(value)
+    def include_loader_ctor(loader, node):
+        value = loader.construct_scalar(node)
+        return IncludeLoader(value)
     def update(d, u):
         """Updates a dictionary without replacing nested dictionaries. Code
         found from `https://stackoverflow.com/a/3233356`."""
@@ -322,6 +331,7 @@ def parse_args(args):
         return d
     yaml.add_constructor(u'!file', file_reader_ctor)
     yaml.add_constructor(u'!cmd', cmd_ctor)
+    yaml.add_constructor(u'!include', include_loader_ctor)
 
     # Prepare template dictionary.
     tmpldict = {}
