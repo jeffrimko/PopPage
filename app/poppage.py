@@ -381,6 +381,11 @@ def run(inpath, tmpldict, outpath=None, execute=None):
         sh.call(line)
     fsys.delete(outpath)
 
+def exit_err(msg, errorlevel=1):
+    """Displays the given error message then exits."""
+    qprompt.error(msg)
+    sys.exit(errorlevel)
+
 def main():
     """This function implements the main logic."""
     args = docopt(__doc__, version="poppage-%s" % (__version__))
@@ -388,11 +393,7 @@ def main():
 
     # Check required conditions.
     if not utildict.get('inpath'):
-        qprompt.error("Must supply INPATH!")
-        sys.exit(1)
-    if not tmpldict:
-        qprompt.error("Must supply template variables!")
-        sys.exit(1)
+        exit_err("Must supply INPATH!")
 
     # Handle command.
     if args['check']:
@@ -400,9 +401,7 @@ def main():
     elif args['make']:
         make(utildict['inpath'], tmpldict, outpath=utildict['outpath'])
     elif args['run']:
-        run(utildict['inpath'], tmpldict,
-                outpath=utildict['outpath'],
-                execute=utildict['execute'])
+        run(utildict['inpath'], tmpldict, outpath=utildict['outpath'], execute=utildict['execute'])
 
 ##==============================================================#
 ## SECTION: Main Body                                           #

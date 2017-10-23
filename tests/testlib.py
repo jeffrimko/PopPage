@@ -50,4 +50,4 @@ class BaseTest(unittest.TestCase):
 getrands = lambda x: "".join(random.choice(ascii_uppercase) for _ in range(x))
 
 def call(args):
-    sh.call("python ../app/poppage.py " + args)
+    return sh.call("python ../app/poppage.py " + args)
