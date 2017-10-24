@@ -22,7 +22,7 @@ if "Linux" == system():
 
 setup(
     name = "poppage",
-    version = "0.5.1",
+    version = "0.5.2",
     author = "Jeff Rimko",
     author_email = "jeffrimko@gmail.com",
     description = "Utility for generating files and directories from templates.",
@@ -43,6 +43,7 @@ setup(
         "binaryornot",
         "docopt",
         "jinja2",
+        "jinja2_time",
         "jinja2schema",
         "pyyaml",
         "qprompt",

@@ -77,7 +77,7 @@ if sys.version_info < (3, 0):
 ##==============================================================#
 
 #: Application version string.
-__version__ = "0.5.1"
+__version__ = "0.5.2"
 
 #: Key separator.
 KEYSEP = "::"
@@ -386,10 +386,10 @@ def parse_args(args):
     for key in ['inpath', 'outpath', 'execute']:
         utildict[key] = args.get("--" + key)
     if "__def__" in tmpldict.keys():
-        for key in ['execute']:
+        for key in ['execute', 'outpath']:
             utildict[key] =  (tmpldict.get('__def__', {}) or {}).get(key)
-        # Make paths absolute based on the location of the defaults file.
-        for key in ['inpath', 'outpath']:
+        for key in ['inpath']:
+            # Make paths absolute based on the location of the defaults file.
             utildict[key] =  (tmpldict.get('__def__', {}) or {}).get(key)
             if not op.isabs(utildict[key]):
                 utildict[key] = op.abspath(op.normpath(op.join(op.dirname(dfltfile), utildict[key])))

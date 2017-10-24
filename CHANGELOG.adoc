@@ -1,5 +1,10 @@
 = PopPage Changelog
 
+== poppage-0.5.2 (2017-10-23)
+=== Fixed
+  - The OUTPATH defined in the `__def__` YAML key is now rooted at the utility working directory rather than the defaults file location.
+  - Added missing Python requirement to `setup.py`.
+
 == poppage-0.5.1 (2017-10-23)
 === Added
   - YAML tags `!ask` and `!yaml` for default files.
