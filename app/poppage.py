@@ -313,6 +313,18 @@ def parse_args(args):
                 return str.__new__(cls, fi.read().strip())
         def __repr__(self):
             return self
+    class DefaultLoader(object):
+        def __new__(cls, fpath):
+            if not op.isabs(fpath):
+                global _DFLTFILE
+                fpath = op.normpath(op.join(op.dirname(_DFLTFILE), fpath))
+            with io.open(fpath) as fi:
+                defs = yaml.load(fi.read())
+            if "inpath" in defs.keys():
+                defs['inpath'] = op.abspath(op.normpath(op.join(op.dirname(fpath), defs['inpath'])))
+            return defs
+        def __repr__(self):
+            return str(self)
     class IncludeLoader(object):
         def __new__(cls, fpath):
             if not op.isabs(fpath):
@@ -336,6 +348,9 @@ def parse_args(args):
     def include_loader_ctor(loader, node):
         value = loader.construct_scalar(node)
         return IncludeLoader(value)
+    def default_loader_ctor(loader, node):
+        value = loader.construct_scalar(node)
+        return DefaultLoader(value)
     def prompter_ctor(loader, node):
         value = loader.construct_scalar(node)
         return Prompter(value)
@@ -352,6 +367,7 @@ def parse_args(args):
     yaml.add_constructor(u'!file', file_reader_ctor)
     yaml.add_constructor(u'!cmd', cmd_ctor)
     yaml.add_constructor(u'!yaml', include_loader_ctor)
+    yaml.add_constructor(u'!def', default_loader_ctor)
     yaml.add_constructor(u'!ask', prompter_ctor)
 
     # Prepare template dictionary.
@@ -436,9 +452,9 @@ def main():
     elif args['run']:
         run(utildict['inpath'], tmpldict, outpath=utildict['outpath'], execute=utildict['execute'])
     elif args['debug']:
-        print("Utility Dictionary:")
+        qprompt.echo("Utility Dictionary:")
         pprint(utildict)
-        print("Template Dictionary:")
+        qprompt.echo("Template Dictionary:")
         pprint(tmpldict)
 
 ##==============================================================#
