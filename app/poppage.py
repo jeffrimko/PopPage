@@ -4,6 +4,7 @@ Usage:
     poppage make [options] [(--string KEY VAL) | (--file KEY PATH)]...
     poppage check [options]
     poppage run [options] [(--string KEY VAL) | (--file KEY PATH)]...
+    poppage debug [options] [(--string KEY VAL) | (--file KEY PATH)]...
     poppage -h | --help
     poppage --version
 
@@ -11,6 +12,7 @@ Commands:
     check   Check the given INPATH template for variables.
     make    Generates directories and files based on the given INPATH template.
     run     Generates the OUTPATH, executes commands, then deletes OUTPATH.
+    debug   Shows the state of the utility and template data structures.
 
 Options:
     --inpath INPATH         Input Jinja2 template used to generate the output;
@@ -50,6 +52,7 @@ import random
 import sys
 import tempfile
 from string import ascii_lowercase
+from pprint import pprint
 
 import auxly.filesys as fsys
 import auxly.shell as sh
@@ -432,6 +435,11 @@ def main():
         make(utildict['inpath'], tmpldict, outpath=utildict['outpath'])
     elif args['run']:
         run(utildict['inpath'], tmpldict, outpath=utildict['outpath'], execute=utildict['execute'])
+    elif args['debug']:
+        print("Utility Dictionary:")
+        pprint(utildict)
+        print("Template Dictionary:")
+        pprint(tmpldict)
 
 ##==============================================================#
 ## SECTION: Main Body                                           #
