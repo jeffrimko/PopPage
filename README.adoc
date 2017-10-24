@@ -66,8 +66,10 @@ Additionally, default key/values can be stored in a YAML file:
 === Custom YAML Tags
 The following custom YAML tags are provided:
 
-  - `!file` - Reads value from a file.
+  - `!file` - Reads value from a file as a string.
+  - `!yaml` - Reads value from file as YAML.
   - `!cmd` - Reads value from a CLI command output.
+  - `!ask` - Prompts the user to input a value.
 
 Check out this example:
 

@@ -59,10 +59,16 @@ class TestCase(BaseTest):
         test.assertEqual(0, retval)
         test.assertTrue(op.isfile("./__output__/out.py"))
 
-    def test_cli_7(test):
+    def test_cli_8(test):
         """Check for basic make CLI functionality with defaults."""
         retval = call("make")
         test.assertEqual(1, retval)
+
+    def test_cli_9(test):
+        """Check for basic make CLI functionality with defaults."""
+        retval = call("make --defaults ./defaults/d5.yaml")
+        test.assertEqual(0, retval)
+        test.assertTrue(op.isfile("./__output__/out.py"))
 
 ##==============================================================#
 ## SECTION: Main Body                                           #

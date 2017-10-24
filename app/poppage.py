@@ -82,6 +82,9 @@ __version__ = "0.5.0"
 #: Key separator.
 KEYSEP = "::"
 
+#: TODO: This is a bit hacky and will be cleaned up in the future.
+_DFLTFILE = None
+
 ##==============================================================#
 ## SECTION: Function Definitions                                #
 ##==============================================================#
@@ -300,16 +303,27 @@ def parse_args(args):
             return self
     class FileReader(str):
         def __new__(cls, fpath):
+            if not op.isabs(fpath):
+                global _DFLTFILE
+                fpath = op.normpath(op.join(op.dirname(_DFLTFILE), fpath))
             with io.open(fpath) as fi:
                 return str.__new__(cls, fi.read().strip())
         def __repr__(self):
             return self
     class IncludeLoader(object):
         def __new__(cls, fpath):
+            if not op.isabs(fpath):
+                global _DFLTFILE
+                fpath = op.normpath(op.join(op.dirname(_DFLTFILE), fpath))
             with io.open(fpath) as fi:
                 return yaml.load(fi.read())
         def __repr__(self):
             return str(self)
+    class Prompter(str):
+        def __new__(cls, msg):
+            return str.__new__(cls, qprompt.ask_str(msg))
+        def __repr__(self):
+            return self
     def cmd_ctor(loader, node):
         value = loader.construct_scalar(node)
         return CmdExec(value)
@@ -319,6 +333,9 @@ def parse_args(args):
     def include_loader_ctor(loader, node):
         value = loader.construct_scalar(node)
         return IncludeLoader(value)
+    def prompter_ctor(loader, node):
+        value = loader.construct_scalar(node)
+        return Prompter(value)
     def update(d, u):
         """Updates a dictionary without replacing nested dictionaries. Code
         found from `https://stackoverflow.com/a/3233356`."""
@@ -331,12 +348,15 @@ def parse_args(args):
         return d
     yaml.add_constructor(u'!file', file_reader_ctor)
     yaml.add_constructor(u'!cmd', cmd_ctor)
-    yaml.add_constructor(u'!include', include_loader_ctor)
+    yaml.add_constructor(u'!yaml', include_loader_ctor)
+    yaml.add_constructor(u'!ask', prompter_ctor)
 
     # Prepare template dictionary.
     tmpldict = {}
     dfltfile = args['--defaults']
     if dfltfile:
+        global _DFLTFILE
+        _DFLTFILE = op.abspath(dfltfile)
         tmpldict = yaml.load(open(dfltfile, "r").read())
     tmpldict = update(tmpldict, {k:v for k,v in zip(args['--string'], args['VAL'])})
     tmpldict = update(tmpldict, {k:open(v).read().strip() for k,v in zip(args['--file'], args['PATH'])})

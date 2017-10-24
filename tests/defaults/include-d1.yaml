@@ -1,0 +1,3 @@
+inpath: ../templates/t5.jinja2
+outpath: ../__output__/out.py
+execute: python {{outpath}}
