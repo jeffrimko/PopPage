@@ -68,7 +68,7 @@ The following custom YAML tags are provided:
 
   - `!file` - Reads value from a file as a string.
   - `!yaml` - Reads value from file as YAML.
-  - `!def` - Like `!yaml` but only for populating the `__def__` key.
+  - `!opt` - Like `!yaml` but only for populating the `__opt__` key.
   - `!cmd` - Reads value from a CLI command output.
   - `!ask` - Prompts the user to input a value.
 
@@ -96,32 +96,32 @@ Check out this example:
         Hello Anakin Skywalker!
 
 === Option Defaults
-Default utility options can be provided in the defaults file under the `__def__` root key.
+Default utility options can be provided in the defaults file under the `__opt__` root key.
 
 Check out these examples:
 
   - Basic option defaults:
 
-        __def__:
+        __opt__:
             inpath: template.jinja2
             outpath: myfile.txt
 
   - Another options example:
 
-        __def__:
+        __opt__:
             inpath: template.jinja2
             outpath: myfile.py
             execute: python myfile.py
 
   - The execute option can be a template:
 
-        __def__:
+        __opt__:
             inpath: template.jinja2
             execute: python {{outpath}}
 
   - Populate the options using a YAML file:
 
-        __def__: !def mydefs.yaml
+        __opt__: !opt myopts.yaml
 
 === Cookiecutter Compatiblity
 PopPage should be compatible with many https://github.com/audreyr/cookiecutter[cookiecutter] templates. Using https://github.com/solarnz/cookiecutter-avr as an example, check for the variables in the template:

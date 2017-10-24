@@ -1,4 +1,4 @@
-__def__:
+__opt__:
     inpath: ../templates/t5.jinja2
     outpath: __output__/out.py
     execute: python {{outpath}}

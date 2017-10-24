@@ -1,5 +1,9 @@
 = PopPage Changelog
 
+== poppage-0.6.0 (2017-10-24)
+=== Changed
+  - The options defaults are now under `__opt__` and `!opt` instead of `__def__` and `!def`.
+
 == poppage-0.5.3 (2017-10-23)
 === Added
   - New `debug` CLI function.

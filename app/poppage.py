@@ -80,7 +80,7 @@ if sys.version_info < (3, 0):
 ##==============================================================#
 
 #: Application version string.
-__version__ = "0.5.3"
+__version__ = "0.6.0"
 
 #: Key separator.
 KEYSEP = "::"
@@ -313,16 +313,16 @@ def parse_args(args):
                 return str.__new__(cls, fi.read().strip())
         def __repr__(self):
             return self
-    class DefaultLoader(object):
+    class OptionLoader(object):
         def __new__(cls, fpath):
             if not op.isabs(fpath):
                 global _DFLTFILE
                 fpath = op.normpath(op.join(op.dirname(_DFLTFILE), fpath))
             with io.open(fpath) as fi:
-                defs = yaml.load(fi.read())
-            if "inpath" in defs.keys():
-                defs['inpath'] = op.abspath(op.normpath(op.join(op.dirname(fpath), defs['inpath'])))
-            return defs
+                opt = yaml.load(fi.read())
+            if "inpath" in opt.keys():
+                opt['inpath'] = op.abspath(op.normpath(op.join(op.dirname(fpath), opt['inpath'])))
+            return opt
         def __repr__(self):
             return str(self)
     class IncludeLoader(object):
@@ -348,9 +348,9 @@ def parse_args(args):
     def include_loader_ctor(loader, node):
         value = loader.construct_scalar(node)
         return IncludeLoader(value)
-    def default_loader_ctor(loader, node):
+    def option_loader_ctor(loader, node):
         value = loader.construct_scalar(node)
-        return DefaultLoader(value)
+        return OptionLoader(value)
     def prompter_ctor(loader, node):
         value = loader.construct_scalar(node)
         return Prompter(value)
@@ -367,7 +367,7 @@ def parse_args(args):
     yaml.add_constructor(u'!file', file_reader_ctor)
     yaml.add_constructor(u'!cmd', cmd_ctor)
     yaml.add_constructor(u'!yaml', include_loader_ctor)
-    yaml.add_constructor(u'!def', default_loader_ctor)
+    yaml.add_constructor(u'!opt', option_loader_ctor)
     yaml.add_constructor(u'!ask', prompter_ctor)
 
     # Prepare template dictionary.
@@ -404,15 +404,15 @@ def parse_args(args):
     utildict = {}
     for key in ['inpath', 'outpath', 'execute']:
         utildict[key] = args.get("--" + key)
-    if "__def__" in tmpldict.keys():
+    if "__opt__" in tmpldict.keys():
         for key in ['execute', 'outpath']:
-            utildict[key] =  (tmpldict.get('__def__', {}) or {}).get(key)
+            utildict[key] =  (tmpldict.get('__opt__', {}) or {}).get(key)
         for key in ['inpath']:
             # Make paths absolute based on the location of the defaults file.
-            utildict[key] =  (tmpldict.get('__def__', {}) or {}).get(key)
+            utildict[key] =  (tmpldict.get('__opt__', {}) or {}).get(key)
             if not op.isabs(utildict[key]):
                 utildict[key] = op.abspath(op.normpath(op.join(op.dirname(dfltfile), utildict[key])))
-        tmpldict.pop('__def__')
+        tmpldict.pop('__opt__')
 
     return utildict, tmpldict
 
