@@ -68,6 +68,7 @@ The following custom YAML tags are provided:
 
   - `!file` - Reads value from a file as a string.
   - `!yaml` - Reads value from file as YAML.
+  - `!def` - Like `!yaml` but only for populating the `__def__` key.
   - `!cmd` - Reads value from a CLI command output.
   - `!ask` - Prompts the user to input a value.
 
@@ -117,6 +118,10 @@ Check out these examples:
         __def__:
             inpath: template.jinja2
             execute: python {{outpath}}
+
+  - Populate the options using a YAML file:
+
+        __def__: !def mydefs.yaml
 
 === Cookiecutter Compatiblity
 PopPage should be compatible with many https://github.com/audreyr/cookiecutter[cookiecutter] templates. Using https://github.com/solarnz/cookiecutter-avr as an example, check for the variables in the template:
