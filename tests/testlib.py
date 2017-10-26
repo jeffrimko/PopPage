@@ -1,4 +1,4 @@
-"""Provides a library to aid testing."""
+"""Provides a library to aid testig."""
 
 ##==============================================================#
 ## SECTION: Imports                                             #
@@ -49,5 +49,19 @@ class BaseTest(unittest.TestCase):
 #: Random uppercase string of length x.
 getrands = lambda x: "".join(random.choice(ascii_uppercase) for _ in range(x))
 
+def get_args():
+    """Returns a default utility args dictionary before parsing."""
+    args = {}
+    args['--inpath'] = None
+    args['--outpath'] = None
+    args['--defaults'] = None
+    args['--keysep'] = "::"
+    args['--string'] = []
+    args['--file'] = []
+    args['VAL'] = []
+    args['PATH'] = []
+    return args
+
 def call(args):
+    """Call PopPage as a CLI utility."""
     return sh.call("python ../app/poppage.py " + args)
