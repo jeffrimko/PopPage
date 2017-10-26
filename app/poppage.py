@@ -57,7 +57,6 @@ from pprint import pprint
 import auxly.filesys as fsys
 import auxly.shell as sh
 import qprompt
-import yaml
 from binaryornot.check import is_binary
 from docopt import docopt
 from jinja2 import FileSystemLoader, Template, meta
@@ -65,6 +64,7 @@ from jinja2.environment import Environment
 from jinja2schema import infer, model
 
 import gitr
+import utilconf
 
 ##==============================================================#
 ## SECTION: Setup                                               #
@@ -84,9 +84,6 @@ __version__ = "0.6.0"
 
 #: Key separator.
 KEYSEP = "::"
-
-#: TODO: This is a bit hacky and will be cleaned up in the future.
-_DFLTFILE = None
 
 ##==============================================================#
 ## SECTION: Function Definitions                                #
@@ -297,125 +294,6 @@ def check(inpath, echo=False, **kwargs):
             qprompt.echo("  " + var)
     return tvars
 
-def parse_args(args):
-    """Parses the given arguments into a template dictionary."""
-    class CmdExec(str):
-        def __new__(cls, cmd):
-            return str.__new__(cls, sh.strout(cmd))
-        def __repr__(self):
-            return self
-    class FileReader(str):
-        def __new__(cls, fpath):
-            if not op.isabs(fpath):
-                global _DFLTFILE
-                fpath = op.normpath(op.join(op.dirname(_DFLTFILE), fpath))
-            with io.open(fpath) as fi:
-                return str.__new__(cls, fi.read().strip())
-        def __repr__(self):
-            return self
-    class OptionLoader(object):
-        def __new__(cls, fpath):
-            if not op.isabs(fpath):
-                global _DFLTFILE
-                fpath = op.normpath(op.join(op.dirname(_DFLTFILE), fpath))
-            with io.open(fpath) as fi:
-                opt = yaml.load(fi.read())
-            if "inpath" in opt.keys():
-                opt['inpath'] = op.abspath(op.normpath(op.join(op.dirname(fpath), opt['inpath'])))
-            return opt
-        def __repr__(self):
-            return str(self)
-    class IncludeLoader(object):
-        def __new__(cls, fpath):
-            if not op.isabs(fpath):
-                global _DFLTFILE
-                fpath = op.normpath(op.join(op.dirname(_DFLTFILE), fpath))
-            with io.open(fpath) as fi:
-                return yaml.load(fi.read())
-        def __repr__(self):
-            return str(self)
-    class Prompter(str):
-        def __new__(cls, msg):
-            return str.__new__(cls, qprompt.ask_str(msg))
-        def __repr__(self):
-            return self
-    def cmd_ctor(loader, node):
-        value = loader.construct_scalar(node)
-        return CmdExec(value)
-    def file_reader_ctor(loader, node):
-        value = loader.construct_scalar(node)
-        return FileReader(value)
-    def include_loader_ctor(loader, node):
-        value = loader.construct_scalar(node)
-        return IncludeLoader(value)
-    def option_loader_ctor(loader, node):
-        value = loader.construct_scalar(node)
-        return OptionLoader(value)
-    def prompter_ctor(loader, node):
-        value = loader.construct_scalar(node)
-        return Prompter(value)
-    def update(d, u):
-        """Updates a dictionary without replacing nested dictionaries. Code
-        found from `https://stackoverflow.com/a/3233356`."""
-        for k, v in u.items():
-            if isinstance(v, collections.Mapping):
-                r = update(d.get(k, {}), v)
-                d[k] = r
-            else:
-                d[k] = u[k]
-        return d
-    yaml.add_constructor(u'!file', file_reader_ctor)
-    yaml.add_constructor(u'!cmd', cmd_ctor)
-    yaml.add_constructor(u'!yaml', include_loader_ctor)
-    yaml.add_constructor(u'!opt', option_loader_ctor)
-    yaml.add_constructor(u'!ask', prompter_ctor)
-
-    # Prepare template dictionary.
-    tmpldict = {}
-    dfltfile = args['--defaults']
-    if dfltfile:
-        global _DFLTFILE
-        _DFLTFILE = op.abspath(dfltfile)
-        tmpldict = yaml.load(open(dfltfile, "r").read())
-    tmpldict = update(tmpldict, {k:v for k,v in zip(args['--string'], args['VAL'])})
-    tmpldict = update(tmpldict, {k:open(v).read().strip() for k,v in zip(args['--file'], args['PATH'])})
-
-    # Handle nested dictionaries.
-    topop = []
-    tmplnest = {}
-    global KEYSEP
-    KEYSEP = args['--keysep']
-    for k,v in tmpldict.items():
-        if k.find(KEYSEP) > -1:
-            level = tmplnest
-            ks = k.split(KEYSEP)
-            for ln,sk in enumerate(ks):
-                level[sk] = level.get(sk, {})
-                if len(ks)-1 == ln:
-                    level[sk] = v
-                else:
-                    level = level[sk]
-            topop.append(k)
-    for k in topop:
-        tmpldict.pop(k)
-    tmpldict = update(tmpldict, tmplnest)
-
-    # Prepare the utility dictionary.
-    utildict = {}
-    for key in ['inpath', 'outpath', 'execute']:
-        utildict[key] = args.get("--" + key)
-    if "__opt__" in tmpldict.keys():
-        for key in ['execute', 'outpath']:
-            utildict[key] =  (tmpldict.get('__opt__', {}) or {}).get(key)
-        for key in ['inpath']:
-            # Make paths absolute based on the location of the defaults file.
-            utildict[key] =  (tmpldict.get('__opt__', {}) or {}).get(key)
-            if not op.isabs(utildict[key]):
-                utildict[key] = op.abspath(op.normpath(op.join(op.dirname(dfltfile), utildict[key])))
-        tmpldict.pop('__opt__')
-
-    return utildict, tmpldict
-
 def run(inpath, tmpldict, outpath=None, execute=None):
     """Handles logic for `run` command."""
     if not outpath:
@@ -438,7 +316,7 @@ def exit_err(msg, errorlevel=1):
 def main():
     """This function implements the main logic."""
     args = docopt(__doc__, version="poppage-%s" % (__version__))
-    utildict, tmpldict = parse_args(args)
+    utildict, tmpldict = utilconf.parse(args)
 
     # Check required conditions.
     if not utildict.get('inpath'):
