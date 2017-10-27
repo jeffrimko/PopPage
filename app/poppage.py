@@ -242,15 +242,13 @@ def make_dir(inpath, tmpldict, outpath=None, _roots=None):
     inpath = op.abspath(inpath)
     dpath = op.dirname(inpath)
     bpath = op.basename(inpath)
+
     if not outpath:
         outpath = render_str(dpath, tmpldict)
-        dname = render_str(bpath, tmpldict)
-        if not dname:
-            return False
-        mpath = op.join(outpath, dname)
-    else:
-        outpath = render_str(outpath, tmpldict)
-        mpath = op.abspath(outpath)
+    dname = render_str(bpath, tmpldict)
+    if not dname:
+        return False
+    mpath = op.abspath(op.join(outpath, dname))
     if not mpath:
         return False
     if _roots:

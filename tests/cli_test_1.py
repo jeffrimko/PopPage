@@ -76,6 +76,13 @@ class TestCase(BaseTest):
         test.assertEqual(0, retval)
         test.assertTrue(op.isfile("./__output__/out.py"))
 
+    def test_cli_11(test):
+        """Check for basic make CLI functionality with defaults."""
+        retval = call("make --defaults defaults/d6.yaml")
+        test.assertEqual(0, retval)
+        test.assertTrue(op.isdir("./__output__/foo"))
+        test.assertTrue(op.isfile("./__output__/foo/bar.txt"))
+
 ##==============================================================#
 ## SECTION: Main Body                                           #
 ##==============================================================#
