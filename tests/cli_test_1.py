@@ -83,6 +83,28 @@ class TestCase(BaseTest):
         test.assertTrue(op.isdir("./__output__/foo"))
         test.assertTrue(op.isfile("./__output__/foo/bar.txt"))
 
+    def test_cli_12(test):
+        """Check for basic make CLI functionality with defaults."""
+        retval = call("make --defaults defaults/d6.yaml --string mydir baz")
+        test.assertEqual(0, retval)
+        test.assertTrue(op.isdir("./__output__/baz"))
+        test.assertTrue(op.isfile("./__output__/baz/bar.txt"))
+
+    def test_cli_13(test):
+        """Check for basic make CLI functionality with defaults."""
+        retval = call("make --defaults defaults/d6.yaml --outpath __output__/baz")
+        test.assertEqual(0, retval)
+        test.assertTrue(op.isdir("./__output__/baz/foo"))
+        test.assertTrue(op.isfile("./__output__/baz/foo/bar.txt"))
+
+    def test_cli_14(test):
+        """Check for basic make CLI functionality with defaults."""
+        retval = call("make --defaults defaults/d6.yaml --inpath templates/mydir --string myname Mario")
+        test.assertEqual(0, retval)
+        test.assertTrue(op.isdir("./__output__/mydir"))
+        test.assertTrue(op.isfile("./__output__/mydir/myfile.txt"))
+        test.assertEqual(File("./__output__/mydir/myfile.txt").read(), "It's a me, Mario!")
+
 ##==============================================================#
 ## SECTION: Main Body                                           #
 ##==============================================================#
