@@ -22,14 +22,14 @@ if "Linux" == system():
 
 setup(
     name = "poppage",
-    version = "0.6.1",
+    version = "0.6.2",
     author = "Jeff Rimko",
     author_email = "jeffrimko@gmail.com",
     description = "Utility for generating files and directories from templates.",
     license = "MIT",
     keywords = "project-templates file-templates file-generation",
     url = "https://github.com/jeffrimko/PopPage",
-    py_modules=["poppage","gitr"],
+    py_modules=["poppage","gitr","utilconf"],
     scripts=SCRIPTS,
     long_description=open("README.rst").read() if isfile("README.rst") else "",
     classifiers=[
