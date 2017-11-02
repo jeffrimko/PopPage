@@ -1,5 +1,9 @@
 = PopPage Changelog
 
+== poppage-0.6.3 (2017-11-01)
+=== Fixed
+  - Fixes issue with incorrect implicit OUTPATH when one is not provided.
+
 == poppage-0.6.2 (2017-10-30)
 === Fixed
   - Missing `utilconf` file in distribution.
