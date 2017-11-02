@@ -1,0 +1,5 @@
+__opt__:
+    inpath: ../templates/{{mydir}}
+mydir: foo
+myfile: bar
+myname: baz
