@@ -14,7 +14,7 @@ import sys
 import unittest
 from time import sleep
 
-from auxly.filesys import File, delete, makedirs, countfiles
+from auxly.filesys import Cwd, File, delete, makedirs, countfiles
 import auxly.shell as sh
 
 # Allows development version of library to be used instead of installed.
@@ -62,6 +62,6 @@ def get_args():
     args['PATH'] = []
     return args
 
-def call(args):
+def call(args, app_path="../app"):
     """Call PopPage as a CLI utility."""
-    return sh.call("python ../app/poppage.py " + args)
+    return sh.call("python %s/poppage.py " % (app_path) + args)

@@ -99,11 +99,12 @@ class TestCase(BaseTest):
 
     def test_cli_14(test):
         """Check for basic make CLI functionality with defaults."""
-        retval = call("make --defaults defaults/d6.yaml --inpath templates/mydir --string myname Mario")
-        test.assertEqual(0, retval)
-        test.assertTrue(op.isdir("./__output__/mydir"))
-        test.assertTrue(op.isfile("./__output__/mydir/myfile.txt"))
-        test.assertEqual(File("./__output__/mydir/myfile.txt").read(), "It's a me, Mario!")
+        with Cwd("__output__"):
+            retval = call("make --defaults ../defaults/d7.yaml", app_path="../../app")
+            test.assertEqual(0, retval)
+            test.assertTrue(op.isdir("./foo"))
+            test.assertTrue(op.isfile("./foo/bar.txt"))
+            test.assertEqual(File("./foo/bar.txt").read(), "hello baz!")
 
 ##==============================================================#
 ## SECTION: Main Body                                           #

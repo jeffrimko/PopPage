@@ -4,6 +4,7 @@
 
 import collections
 import io
+import os
 import os.path as op
 
 import yaml
@@ -176,6 +177,8 @@ def parse(args):
     tmpldict = get_tmpldict(args)
     utildict = get_defopts(tmpldict)
     utildict.update(get_cliopts(args))
+    if not utildict.get('outpath'):
+        utildict['outpath'] = os.getcwd()
     return utildict, tmpldict
 
 ##==============================================================#
