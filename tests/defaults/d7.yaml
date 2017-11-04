@@ -1,4 +1,5 @@
 __opt__:
+    command: make
     inpath: ../templates/{{mydir}}
 mydir: foo
 myfile: bar

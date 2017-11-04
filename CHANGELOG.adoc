@@ -1,5 +1,9 @@
 = PopPage Changelog
 
+== poppage-0.6.4 (2017-11-04)
+=== Added
+  - Can now pass in DFLTFILE as a single argument, command will be read from the file.
+
 == poppage-0.6.3 (2017-11-01)
 === Fixed
   - Fixes issue with incorrect implicit OUTPATH when one is not provided.

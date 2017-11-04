@@ -1,6 +1,7 @@
 """PopPage is a utility for generating output from templates.
 
 Usage:
+    poppage INPATH
     poppage make [options] [(--string KEY VAL) | (--file KEY PATH)]...
     poppage check [options]
     poppage run [options] [(--string KEY VAL) | (--file KEY PATH)]...
@@ -80,7 +81,7 @@ if sys.version_info < (3, 0):
 ##==============================================================#
 
 #: Application version string.
-__version__ = "0.6.3"
+__version__ = "0.6.4"
 
 #: Key separator.
 KEYSEP = "::"
@@ -209,6 +210,8 @@ def render_file(tmplpath, tmpldict):
 def make(inpath, tmpldict, outpath=None, **kwargs):
     """Generates a file or directory based on the given input
     template/dictionary."""
+    if not outpath:
+        outpath = os.getcwd()
     if op.isfile(inpath):
         return make_file(inpath, tmpldict, outpath=outpath)
     else:
@@ -295,7 +298,7 @@ def check(inpath, echo=False, **kwargs):
 def run(inpath, tmpldict, outpath=None, execute=None):
     """Handles logic for `run` command."""
     if not outpath:
-        outpath = "__temp-poppage-" + _getrands(6)
+        outpath = op.join(os.getcwd(), "__temp-poppage-" + _getrands(6))
     make(inpath, tmpldict, outpath=outpath)
     qprompt.hrule()
     if not execute:
@@ -321,13 +324,13 @@ def main():
         exit_err("Must supply INPATH!")
 
     # Handle command.
-    if args['check']:
+    if utildict['command'] == "check":
         check(utildict['inpath'], echo=True)
-    elif args['make']:
+    elif utildict['command'] == "make":
         make(utildict['inpath'], tmpldict, outpath=utildict['outpath'])
-    elif args['run']:
+    elif utildict['command'] == "run":
         run(utildict['inpath'], tmpldict, outpath=utildict['outpath'], execute=utildict['execute'])
-    elif args['debug']:
+    elif utildict['command'] == "debug":
         qprompt.echo("Utility Dictionary:")
         pprint(utildict)
         qprompt.echo("Template Dictionary:")

@@ -117,12 +117,15 @@ def get_cliopts(args):
         val = args.get("--" + key)
         if val:
             opts[key] = val
+    cmd = [c for c in ['check','debug','make','run'] if args.get(c)]
+    if cmd:
+        opts['command'] = cmd[0]
     return opts
 
 def get_defopts(dfltdict):
     opts = {}
     if "__opt__" in dfltdict.keys():
-        for key in ['execute', 'outpath']:
+        for key in ['execute', 'outpath', 'command']:
             opts[key] = (dfltdict.get('__opt__', {}) or {}).get(key)
         for key in ['inpath']:
             # Make paths absolute based on the location of the defaults file.
@@ -147,7 +150,8 @@ def get_tmpldict(args):
     if dfltfile:
         global _DFLTFILE
         _DFLTFILE = op.abspath(dfltfile)
-        tmpldict = yaml.load(fsys.File(dfltfile).read())
+        data = fsys.File(dfltfile).read()
+        tmpldict = yaml.load(data)
     tmpldict = update(tmpldict, {k:v for k,v in zip(args['--string'], args['VAL'])})
     tmpldict = update(tmpldict, {k:fsys.File(v).read().strip() for k,v in zip(args['--file'], args['PATH'])})
 
@@ -174,11 +178,14 @@ def get_tmpldict(args):
 
 def parse(args):
     """Parses the given arguments into a template dictionary."""
+    if args.get('INPATH'):
+        args['--defaults'] = args['INPATH']
+        if not op.isfile(args['--defaults']):
+            from poppage import exit_err
+            exit_err("Given path could not be found: `%s`" % (args['--defaults']))
     tmpldict = get_tmpldict(args)
     utildict = get_defopts(tmpldict)
     utildict.update(get_cliopts(args))
-    if not utildict.get('outpath'):
-        utildict['outpath'] = os.getcwd()
     return utildict, tmpldict
 
 ##==============================================================#
