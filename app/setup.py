@@ -22,7 +22,7 @@ if "Linux" == system():
 
 setup(
     name = "poppage",
-    version = "0.6.4",
+    version = "0.6.5",
     author = "Jeff Rimko",
     author_email = "jeffrimko@gmail.com",
     description = "Utility for generating files and directories from templates.",

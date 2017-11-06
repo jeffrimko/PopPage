@@ -46,8 +46,10 @@ class OptLoader(object):
             fpath = op.normpath(op.join(op.dirname(_DFLTFILE), fpath))
         with io.open(fpath) as fi:
             opt = yaml.load(fi.read())
+        # TODO: Clean up, perhaps make function that can be called by get_defopts.
         if "inpath" in opt.keys():
-            opt['inpath'] = op.abspath(op.normpath(op.join(op.dirname(fpath), opt['inpath'])))
+            if not opt['inpath'].startswith("http"):
+                opt['inpath'] = op.abspath(op.normpath(op.join(op.dirname(fpath), opt['inpath'])))
         return opt
     def __repr__(self):
         return str(self)
@@ -127,10 +129,11 @@ def get_defopts(dfltdict):
     if "__opt__" in dfltdict.keys():
         for key in ['execute', 'outpath', 'command']:
             opts[key] = (dfltdict.get('__opt__', {}) or {}).get(key)
+        # TODO: Clean up, perhaps make function that can be called by OptLoader.
         for key in ['inpath']:
             # Make paths absolute based on the location of the defaults file.
             opts[key] =  (dfltdict.get('__opt__', {}) or {}).get(key)
-            if not op.isabs(opts[key]):
+            if not op.isabs(opts[key]) and not opts[key].startswith("http"):
                 global _DFLTFILE
                 opts[key] = op.abspath(op.normpath(op.join(op.dirname(_DFLTFILE), opts[key])))
         dfltdict.pop('__opt__')

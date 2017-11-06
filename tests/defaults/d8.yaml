@@ -1,0 +1,9 @@
+__opt__:
+    command: debug
+    inpath: "https://github.com/jeffrimko/PopPageTemplates/blob/master/check_deps_batch/template.jinja2"
+deps:
+  - name: "Python"
+    desc: "Python language interpreter."
+    ref: "www.python.org"
+    ver: "2.7/3.x"
+    cmd: python -V

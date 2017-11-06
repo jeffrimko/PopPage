@@ -1,0 +1,7 @@
+__opt__: !opt ../includes/include-d2.yaml
+deps:
+  - name: "Python"
+    desc: "Python language interpreter."
+    ref: "www.python.org"
+    ver: "2.7/3.x"
+    cmd: python -V

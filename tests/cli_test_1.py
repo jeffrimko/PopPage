@@ -115,6 +115,16 @@ class TestCase(BaseTest):
             test.assertTrue(op.isfile("./foo/bar.txt"))
             test.assertEqual(File("./foo/bar.txt").read(), "hello baz!")
 
+    def test_cli_16(test):
+        """Check for basic make CLI functionality with defaults."""
+        retval = call("defaults/d8.yaml")
+        test.assertEqual(0, retval)
+
+    def test_cli_17(test):
+        """Check for basic make CLI functionality with defaults."""
+        retval = call("defaults/d9.yaml")
+        test.assertEqual(0, retval)
+
 ##==============================================================#
 ## SECTION: Main Body                                           #
 ##==============================================================#

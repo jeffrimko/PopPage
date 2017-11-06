@@ -1,0 +1,2 @@
+command: debug
+inpath: "https://github.com/jeffrimko/PopPageTemplates/blob/master/check_deps_batch/template.jinja2"
