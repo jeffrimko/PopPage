@@ -1,5 +1,9 @@
 = PopPage Changelog
 
+== poppage-0.6.6 (2017-12-06)
+=== Changed
+  - Can now render templates even if all the variables are not defined; useful for allowing default values in templates.
+
 == poppage-0.6.5 (2017-11-05)
 === Fixed
   - Fixed issued with providing URL INPATH in a defaults file.

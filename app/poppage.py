@@ -60,7 +60,7 @@ import auxly.shell as sh
 import qprompt
 from binaryornot.check import is_binary
 from docopt import docopt
-from jinja2 import FileSystemLoader, Template, meta
+from jinja2 import FileSystemLoader, Template, Undefined, meta
 from jinja2.environment import Environment
 from jinja2schema import infer, model
 
@@ -81,10 +81,22 @@ if sys.version_info < (3, 0):
 ##==============================================================#
 
 #: Application version string.
-__version__ = "0.6.5"
+__version__ = "0.6.6"
 
 #: Key separator.
 KEYSEP = "::"
+
+##==============================================================#
+## SECTION: Class Definitions                                   #
+##==============================================================#
+
+class SkipUndefined(Undefined):
+    def _fail_with_undefined_error(self, *args, **kwargs):
+        return None
+    def __getitem__(self, key):
+        return self
+    def __getattr__(self, key):
+        return self
 
 ##==============================================================#
 ## SECTION: Function Definitions                                #
@@ -170,22 +182,21 @@ def check_template(tmplstr, tmpldict=None):
         missing = []
     return missing
 
-def render_str(tmplstr, tmpldict):
+def render_str(tmplstr, tmpldict, bail_miss=False):
     """Renders the given template string using the given template variable
     dictionary. Returns the rendered text as a string."""
-    env = Environment(extensions=['jinja2_time.TimeExtension'])
+    env = Environment(undefined=SkipUndefined, extensions=['jinja2_time.TimeExtension'])
     miss = check_template(tmplstr, tmpldict)
     if miss:
-        qprompt.error("Template vars `%s` were not supplied values!" % (
+        qprompt.warn("Template vars `%s` were not supplied values!" % (
             "/".join(miss)))
-        return
-    return Template(tmplstr).render(**tmpldict)
+    return env.from_string(tmplstr).render(**tmpldict)
 
-def render_file(tmplpath, tmpldict):
+def render_file(tmplpath, tmpldict, bail_miss=False):
     """Renders the template file and the given path using the given template
     variable dictionary. Returns the rendered text as a string."""
     tmplpath = op.abspath(tmplpath)
-    env = Environment(extensions=['jinja2_time.TimeExtension'])
+    env = Environment(undefined=SkipUndefined, extensions=['jinja2_time.TimeExtension'])
     for encoding in ["utf-8", "mbcs"]:
         try:
             env.loader = FileSystemLoader(op.dirname(tmplpath), encoding=encoding)
@@ -200,10 +211,9 @@ def render_file(tmplpath, tmpldict):
         tmplstr = fo.read()
     miss = check_template(tmplstr, tmpldict)
     if miss:
-        qprompt.error("Template vars `%s` in `%s` were not supplied values!" % (
+        qprompt.warn("Template vars `%s` in `%s` were not supplied values!" % (
             "/".join(miss),
             op.basename(tmplpath)))
-        return
     return tmpl.render(**tmpldict)
 
 @handle_paths(inpath=0,outpath=2)
