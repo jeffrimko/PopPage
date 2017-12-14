@@ -81,7 +81,7 @@ if sys.version_info < (3, 0):
 ##==============================================================#
 
 #: Application version string.
-__version__ = "0.6.6"
+__version__ = "0.6.7"
 
 #: Key separator.
 KEYSEP = "::"
@@ -220,7 +220,7 @@ def render_file(tmplpath, tmpldict, bail_miss=False):
 def make(inpath, tmpldict, outpath=None, **kwargs):
     """Generates a file or directory based on the given input
     template/dictionary."""
-    if not outpath:
+    if not outpath and op.isdir(inpath):
         outpath = os.getcwd()
     if op.isfile(inpath):
         return make_file(inpath, tmpldict, outpath=outpath)
@@ -232,6 +232,8 @@ def make_file(inpath, tmpldict, outpath=None):
     if outpath:
         outpath = render_str(outpath, tmpldict)
         if op.isdir(outpath):
+            # TODO: (JRR@201712141826) This is dangerous as it could overwrite
+            # the input template file!
             outpath = op.join(outpath, op.basename(inpath))
             outpath = render_str(outpath, tmpldict)
     if is_binary(inpath):
@@ -337,9 +339,9 @@ def main():
     if utildict['command'] == "check":
         check(utildict['inpath'], echo=True)
     elif utildict['command'] == "make":
-        make(utildict['inpath'], tmpldict, outpath=utildict['outpath'])
+        make(utildict['inpath'], tmpldict, outpath=utildict.get('outpath'))
     elif utildict['command'] == "run":
-        run(utildict['inpath'], tmpldict, outpath=utildict['outpath'], execute=utildict['execute'])
+        run(utildict['inpath'], tmpldict, outpath=utildict.get('outpath'), execute=utildict.get('execute'))
     elif utildict['command'] == "debug":
         qprompt.echo("Utility Dictionary:")
         pprint(utildict)

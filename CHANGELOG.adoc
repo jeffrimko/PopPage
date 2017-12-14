@@ -1,5 +1,12 @@
 = PopPage Changelog
 
+== poppage-0.6.7 (2017-12-14)
+=== Added
+  - YAML tag `!py` to allow executing Python code in defaults file; useful for processing other variables.
+
+=== Fixed
+  - No longer throws error when running a file template without a given OUTPATH; output is sent to stdout.
+
 == poppage-0.6.6 (2017-12-06)
 === Changed
   - Can now render templates even if all the variables are not defined; useful for allowing default values in templates.
