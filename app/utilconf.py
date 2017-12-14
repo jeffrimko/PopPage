@@ -97,6 +97,11 @@ def ctor_file(loader, node):
     value = loader.construct_scalar(node)
     return FileReader(value)
 
+def ctor_py(loader, node):
+    seq = loader.construct_sequence(node)
+    cmd = seq.pop(0).format(*seq)
+    return eval(cmd)
+
 def ctor_yaml(loader, node):
     value = loader.construct_scalar(node)
     return IncLoader(value)
@@ -146,6 +151,7 @@ def get_tmpldict(args):
     yaml.add_constructor(u'!yaml', ctor_yaml)
     yaml.add_constructor(u'!opt', ctor_opt)
     yaml.add_constructor(u'!ask', ctor_ask)
+    yaml.add_constructor(u'!py', ctor_py)
 
     # Prepare template dictionary.
     tmpldict = {}
