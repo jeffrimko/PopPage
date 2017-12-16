@@ -219,8 +219,6 @@ def render_file(tmplpath, tmpldict, bail_miss=False):
 def make(inpath, tmpldict, outpath=None, **kwargs):
     """Generates a file or directory based on the given input
     template/dictionary."""
-    if not outpath and op.isdir(inpath):
-        outpath = os.getcwd()
     if op.isfile(inpath):
         return make_file(inpath, tmpldict, outpath=outpath)
     else:
@@ -245,6 +243,8 @@ def make_file(inpath, tmpldict, outpath=None):
     # Handle rendered output.
     if outpath:
         outpath = op.abspath(outpath)
+        if inpath == outpath:
+            qprompt.fatal("Output cannot overwrite input template!")
         fsys.makedirs(op.dirname(outpath))
         with io.open(outpath, "w", encoding="utf-8") as f:
             qprompt.status("Writing `%s`..." % (outpath), f.write, [text])
@@ -254,11 +254,10 @@ def make_file(inpath, tmpldict, outpath=None):
 
 def make_dir(inpath, tmpldict, outpath=None, _roots=None):
     inpath = op.abspath(inpath)
-    dpath = op.dirname(inpath)
     bpath = op.basename(inpath)
 
     if not outpath:
-        outpath = render_str(dpath, tmpldict)
+        outpath = os.getcwd()
     dname = render_str(bpath, tmpldict)
     if not dname:
         return False
@@ -270,10 +269,10 @@ def make_dir(inpath, tmpldict, outpath=None, _roots=None):
     else:
         _roots = (render_str(inpath, tmpldict), mpath)
     if inpath == mpath:
-        qprompt.fatal("Output and inpath paths cannot match!")
+        qprompt.fatal("Output cannot overwrite input template!")
     qprompt.status("Making dir `%s`..." % (mpath), fsys.makedirs, [mpath])
 
-    # Iterate over files and directories in parent only.
+    # Iterate over files and directories IN PARENT ONLY.
     for r,ds,fs in os.walk(inpath):
         for f in fs:
             ipath = op.join(r,f)
@@ -285,7 +284,7 @@ def make_dir(inpath, tmpldict, outpath=None, _roots=None):
             ipath = op.join(r, d)
             if not make_dir(ipath, tmpldict, _roots=_roots):
                 return False
-        break
+        break # Prevents from walking beyond parent.
     return True
 
 @handle_paths(inpath=0)
@@ -329,7 +328,7 @@ def main():
 
     # Check required conditions.
     if not utildict.get('inpath'):
-        fatal("Must supply INPATH!")
+        qprompt.fatal("Must supply INPATH!")
 
     # Handle command.
     if utildict['command'] == "check":
