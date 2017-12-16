@@ -64,4 +64,6 @@ def get_args():
 
 def call(args, app_path="../app"):
     """Call PopPage as a CLI utility."""
-    return sh.call("python %s/poppage.py " % (app_path) + args)
+    cmd = "python %s/poppage.py " % (app_path) + args
+    print(cmd)
+    return sh.call(cmd)

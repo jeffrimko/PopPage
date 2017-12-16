@@ -269,6 +269,8 @@ def make_dir(inpath, tmpldict, outpath=None, _roots=None):
         mpath = mpath.replace(*_roots)
     else:
         _roots = (render_str(inpath, tmpldict), mpath)
+    if inpath == mpath:
+        qprompt.fatal("Output and inpath paths cannot match!")
     qprompt.status("Making dir `%s`..." % (mpath), fsys.makedirs, [mpath])
 
     # Iterate over files and directories in parent only.

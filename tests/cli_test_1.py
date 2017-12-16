@@ -125,6 +125,12 @@ class TestCase(BaseTest):
         retval = call("defaults/d9.yaml")
         test.assertEqual(0, retval)
 
+    def test_cli_18(test):
+        """Check for basic make CLI functionality with defaults."""
+        with Cwd("templates"):
+            retval = call("make --inpath foo", app_path="../../app")
+            test.assertEqual(1, retval)
+
 ##==============================================================#
 ## SECTION: Main Body                                           #
 ##==============================================================#
