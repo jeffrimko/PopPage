@@ -205,8 +205,7 @@ def render_file(tmplpath, tmpldict, bail_miss=False):
         except UnicodeDecodeError:
             qprompt.warn("Issue while decoding template with `%s`!" % encoding)
     else:
-        qprompt.error("Unknown issue while loading template!")
-        sys.exit(1)
+        qprompt.fatal("Unknown issue while loading template!")
     with io.open(tmplpath) as fo:
         tmplstr = fo.read()
     miss = check_template(tmplstr, tmpldict)
@@ -321,11 +320,6 @@ def run(inpath, tmpldict, outpath=None, execute=None):
         sh.call(line)
     fsys.delete(outpath)
 
-def exit_err(msg, errorlevel=1):
-    """Displays the given error message then exits."""
-    qprompt.error(msg)
-    sys.exit(errorlevel)
-
 def main():
     """This function implements the main logic."""
     args = docopt(__doc__, version="poppage-%s" % (__version__))
@@ -333,7 +327,7 @@ def main():
 
     # Check required conditions.
     if not utildict.get('inpath'):
-        exit_err("Must supply INPATH!")
+        fatal("Must supply INPATH!")
 
     # Handle command.
     if utildict['command'] == "check":

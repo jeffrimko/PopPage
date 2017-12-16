@@ -190,8 +190,7 @@ def parse(args):
     if args.get('INPATH'):
         args['--defaults'] = args['INPATH']
         if not op.isfile(args['--defaults']):
-            from poppage import exit_err
-            exit_err("Given path could not be found: `%s`" % (args['--defaults']))
+            qprompt.fatal("Given path could not be found: `%s`" % (args['--defaults']))
     tmpldict = get_tmpldict(args)
     utildict = get_defopts(tmpldict)
     utildict.update(get_cliopts(args))
