@@ -12,14 +12,16 @@ from testlib import *
 
 class TestCase(BaseTest):
 
-    def test_cli_1(test):
-        retval = call('run --inpath ./templates/t5.jinja2 --outpath out.py --execute "python {{outpath}}" --string filename foo.txt --string text bar')
+    def test_cli_run_1(test):
+        cmd = 'run --inpath ./templates/t5.jinja2 --outpath out.py --execute "python {{outpath}}"'
+        cmd += ' --string filename foo.txt --string text bar'
+        retval = call(cmd)
         test.assertEqual(0, retval)
         test.assertTrue(op.isfile("__output__/foo.txt"))
         test.assertFalse(op.isfile("__output__/out.py"))
         test.assertEqual(File("__output__/foo.txt").read(), "bar")
 
-    def test_cli_2(test):
+    def test_cli_run_2(test):
         retval = call("run --defaults defaults/d4.yaml")
         test.assertEqual(0, retval)
         test.assertTrue(op.isfile("__output__/foo.txt"))

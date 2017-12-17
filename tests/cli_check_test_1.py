@@ -12,11 +12,11 @@ from testlib import *
 
 class TestCase(BaseTest):
 
-    def test_cli_1(test):
+    def test_cli_check_1(test):
         retval = call('check --inpath ./templates/t5.jinja2')
         test.assertEqual(0, retval)
 
-    def test_cli_2(test):
+    def test_cli_check_2(test):
         retval = call('check')
         test.assertEqual(1, retval)
 
