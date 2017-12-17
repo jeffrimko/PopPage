@@ -40,7 +40,6 @@ URLS = [
         # "https://github.com/laerus/cookiecutter-xontrib",
         # "https://github.com/conda/cookiecutter-conda-python",
         # "https://github.com/mckaymatt/cookiecutter-pypackage-rust-cross-platform-publish",
-        "https://github.com/Ars2014/cookiecutter-telegram-bot",
         # "https://github.com/pydanny/cookiecutter-django",
         # "https://github.com/agconti/cookiecutter-django-rest",
         "https://github.com/marcofucci/cookiecutter-simple-django",

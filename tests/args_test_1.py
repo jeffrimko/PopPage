@@ -14,7 +14,6 @@ from utilconf import parse
 class TestCase(BaseTest):
 
     def test_args_1(test):
-        """Check for proper arguments handling."""
         args = get_args()
         args['--inpath'] = "foo.txt"
         utildict, tmpldict = parse(args)
@@ -22,7 +21,6 @@ class TestCase(BaseTest):
         test.assertEqual(tmpldict, {})
 
     def test_args_2(test):
-        """Check for proper arguments handling."""
         args = get_args()
         args['--defaults'] = "defaults/d4.yaml"
         args['--inpath'] = "foo.txt"
