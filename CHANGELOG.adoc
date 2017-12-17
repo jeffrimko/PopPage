@@ -1,5 +1,9 @@
 = PopPage Changelog
 
+== poppage-0.6.8 (2017-12-17)
+=== Changed
+  - Added logic to prevent input templates from being overwritten by output.
+
 == poppage-0.6.7 (2017-12-14)
 === Added
   - YAML tag `!py` to allow executing Python code in defaults file; useful for processing other variables.

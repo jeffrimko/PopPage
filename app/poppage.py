@@ -81,7 +81,7 @@ if sys.version_info < (3, 0):
 ##==============================================================#
 
 #: Application version string.
-__version__ = "0.6.7"
+__version__ = "0.6.8"
 
 #: Key separator.
 KEYSEP = "::"
@@ -229,8 +229,6 @@ def make_file(inpath, tmpldict, outpath=None):
     if outpath:
         outpath = render_str(outpath, tmpldict)
         if op.isdir(outpath):
-            # TODO: (JRR@201712141826) This is dangerous as it could overwrite
-            # the input template file!
             outpath = op.join(outpath, op.basename(inpath))
             outpath = render_str(outpath, tmpldict)
     if is_binary(inpath):
