@@ -1,7 +1,7 @@
 """PopPage is a utility for generating output from templates.
 
 Usage:
-    poppage INPATH
+    poppage INPATH [runargs]
     poppage make [options] [(--string KEY VAL) | (--file KEY PATH)]...
     poppage check [options]
     poppage run [options] [(--string KEY VAL) | (--file KEY PATH)]...
@@ -39,6 +39,11 @@ Notes:
   - The output will be passed to `stdout` if INPATH is a file (rather than a
     directory) and INPATH does not contain a template variable and no OUTPATH
     is specified.
+  - In a YAML defaults file, use a `command` key under `__opt__` to specify the
+    default command.
+  - When running using INPATH as first argument, additional arguments will be
+    passed to the execute commands as RUNARGS. In this scenario, INPATH will
+    typically be a YAML defaults file with an `__opt__` key.
 """
 
 ##==============================================================#
@@ -305,7 +310,7 @@ def check(inpath, echo=False, **kwargs):
             qprompt.echo("  " + var)
     return tvars
 
-def run(inpath, tmpldict, outpath=None, execute=None):
+def run(inpath, tmpldict, outpath=None, execute=None, runargs=None):
     """Handles logic for `run` command."""
     if not outpath:
         outpath = op.join(os.getcwd(), "__temp-poppage-" + _getrands(6))
@@ -314,6 +319,7 @@ def run(inpath, tmpldict, outpath=None, execute=None):
     if not execute:
         execute = outpath
     tmpldict.update({'outpath': outpath})
+    tmpldict.update({'runargs': " ".join(runargs or [])})
     execute = render_str(execute, tmpldict)
     for line in execute.splitlines():
         sh.call(line)
@@ -321,7 +327,17 @@ def run(inpath, tmpldict, outpath=None, execute=None):
 
 def main():
     """This function implements the main logic."""
-    args = docopt(__doc__, version="poppage-%s" % (__version__))
+    if len(sys.argv) > 1 and op.isfile(sys.argv[1]):
+        args = {}
+        args['--defaults'] = sys.argv[1]
+        args['--file'] = []
+        args['--keysep'] = "::"
+        args['--string'] = []
+        args['PATH'] = []
+        args['VAL'] = []
+        args['runargs'] = sys.argv[2:]
+    else:
+        args = docopt(__doc__, version="poppage-%s" % (__version__))
     utildict, tmpldict = utilconf.parse(args)
 
     # Check required conditions.
@@ -334,7 +350,7 @@ def main():
     elif utildict['command'] == "make":
         make(utildict['inpath'], tmpldict, outpath=utildict.get('outpath'))
     elif utildict['command'] == "run":
-        run(utildict['inpath'], tmpldict, outpath=utildict.get('outpath'), execute=utildict.get('execute'))
+        run(utildict['inpath'], tmpldict, outpath=utildict.get('outpath'), execute=utildict.get('execute'), runargs=utildict.get('runargs'))
     elif utildict['command'] == "debug":
         qprompt.echo("Utility Dictionary:")
         pprint(utildict)

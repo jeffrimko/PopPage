@@ -127,6 +127,7 @@ def get_cliopts(args):
     cmd = [c for c in ['check','debug','make','run'] if args.get(c)]
     if cmd:
         opts['command'] = cmd[0]
+    opts['runargs'] = args.get('runargs', [])
     return opts
 
 def get_defopts(dfltdict):
