@@ -322,7 +322,7 @@ def run(inpath, tmpldict, outpath=None, execute=None, runargs=None):
     tmpldict.update({'runargs': " ".join(runargs or [])})
     execute = render_str(execute, tmpldict)
     for line in execute.splitlines():
-        sh.call(line)
+        sh.call(line.strip())
     fsys.delete(outpath)
 
 def main():
@@ -335,7 +335,7 @@ def main():
         args['--string'] = []
         args['PATH'] = []
         args['VAL'] = []
-        args['runargs'] = sys.argv[2:]
+        args['runargs'] = sys.argv[2:] or ""
     else:
         args = docopt(__doc__, version="poppage-%s" % (__version__))
     utildict, tmpldict = utilconf.parse(args)

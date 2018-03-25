@@ -195,6 +195,8 @@ def parse(args):
     tmpldict = get_tmpldict(args)
     utildict = get_defopts(tmpldict)
     utildict.update(get_cliopts(args))
+    if args.get('--defaults') and not utildict.get('command'):
+        utildict['command'] = "run"
     return utildict, tmpldict
 
 ##==============================================================#
