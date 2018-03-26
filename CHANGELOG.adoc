@@ -41,16 +41,16 @@
 
 == poppage-0.6.0 (2017-10-24)
 === Changed
-  - The options defaults are now under `__opt__` and `!opt` instead of `__def__` and `!def`.
+  - The options defaults are now under `+__opt__+` and `!opt` instead of `+__def__+` and `!def`.
 
 == poppage-0.5.3 (2017-10-23)
 === Added
   - New `debug` CLI function.
-  - YAML tag `!def` to handle special logic for `__def__` YAML key.
+  - YAML tag `!def` to handle special logic for `+__def__+` YAML key.
 
 == poppage-0.5.2 (2017-10-23)
 === Fixed
-  - The OUTPATH defined in the `__def__` YAML key is now rooted at the utility working directory rather than the defaults file location.
+  - The OUTPATH defined in the `+__def__+` YAML key is now rooted at the utility working directory rather than the defaults file location.
   - Added missing Python requirement to `setup.py`.
 
 == poppage-0.5.1 (2017-10-23)
@@ -64,7 +64,7 @@
 == poppage-0.5.0 (2017-10-22)
 === Highlights
   - Changed CLI signature, INPATH/OUTPATH are now options rather than positional arguments.
-  - The `make` and `run` commands will use option defaults provided in the defaults YAML file under `__def__` key.
+  - The `make` and `run` commands will use option defaults provided in the defaults YAML file under `+__def__+` key.
 
 == poppage-0.4.0 (2017-10-19)
 === Highlights
