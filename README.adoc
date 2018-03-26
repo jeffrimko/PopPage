@@ -74,7 +74,7 @@ The following custom YAML tags are provided:
 
   - `!file` - Reads value from a file as a string.
   - `!yaml` - Reads value from file as YAML.
-  - `!opt` - Like `!yaml` but only for populating the `__opt__` key.
+  - `!opt` - Like `!yaml` but only for populating the `+__opt__+` key.
   - `!cmd` - Reads value from a CLI command output.
   - `!ask` - Prompts the user to input a value.
   - `!py` - Executes Python code.
@@ -112,7 +112,7 @@ loud: !py ["'{0}'.upper()", *name] <2>
 <2> A list must be provided to the `!py` tag. The code is the first element and it can contain standard Python string format variables (e.g. `{0}`) which will be replaced by the following list elements. Note that an anchor reference can be used as an element!
 
 === Option Defaults
-Default utility options can be provided in the defaults file under the `__opt__` root key.
+Default utility options can be provided in the defaults file under the `+__opt__+` root key.
 
 Check out these examples:
 
