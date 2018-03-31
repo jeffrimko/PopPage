@@ -120,12 +120,12 @@ def handle_paths(**dkwargs):
                 dname = gitr.is_dir(inpath)
                 if outpath == None:
                     outpath = os.getcwd()
-                    if dname:
-                        outpath = op.join(outpath, dname)
-                    elif fname:
-                        outpath = op.join(outpath, fname)
+                    if fname:
+                        outpath = op.join(outpath, op.basename(fname))
+                if dname:
+                    outpath = op.join(outpath, op.basename(dname))
                 if fname:
-                    return op.join(tpath, fname), outpath, tpath
+                    return op.join(tpath, op.basename(fname)), outpath, tpath
                 return tpath, outpath, tpath
             return inpath, outpath, None
         def inner(*fargs, **fkwargs):
