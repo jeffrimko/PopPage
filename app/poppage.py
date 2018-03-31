@@ -152,6 +152,9 @@ def handle_paths(**dkwargs):
                         fargs[dkwargs[key]] = var
                     else:
                         fkwargs[key] = var
+            if to_delete:
+                if op.isdir(inpath):
+                    fkwargs['_roots'] = (op.basename(to_delete), ".")
             retval = func(*fargs, **fkwargs)
             if to_delete:
                 fsys.delete(to_delete)
@@ -225,9 +228,9 @@ def make(inpath, tmpldict, outpath=None, **kwargs):
     """Generates a file or directory based on the given input
     template/dictionary."""
     if op.isfile(inpath):
-        return make_file(inpath, tmpldict, outpath=outpath)
+        return make_file(inpath, tmpldict, outpath=outpath, **kwargs)
     else:
-        return make_dir(inpath, tmpldict, outpath=outpath)
+        return make_dir(inpath, tmpldict, outpath=outpath, **kwargs)
 
 def make_file(inpath, tmpldict, outpath=None):
     inpath = op.abspath(inpath)
@@ -273,6 +276,7 @@ def make_dir(inpath, tmpldict, outpath=None, _roots=None):
         _roots = (render_str(inpath, tmpldict), mpath)
     if inpath == mpath:
         qprompt.fatal("Output cannot overwrite input template!")
+    mpath = render_str(mpath, tmpldict)
     qprompt.status("Making dir `%s`..." % (mpath), fsys.makedirs, [mpath])
 
     # Iterate over files and directories IN PARENT ONLY.
@@ -285,7 +289,7 @@ def make_dir(inpath, tmpldict, outpath=None, _roots=None):
                 return False
         for d in ds:
             ipath = op.join(r, d)
-            if not make_dir(ipath, tmpldict, _roots=_roots):
+            if not make_dir(ipath, tmpldict, mpath, _roots=_roots):
                 return False
         break # Prevents from walking beyond parent.
     return True
