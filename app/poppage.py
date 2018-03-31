@@ -154,7 +154,10 @@ def handle_paths(**dkwargs):
                         fkwargs[key] = var
             if to_delete:
                 if op.isdir(inpath):
-                    fkwargs['_roots'] = (op.basename(to_delete), ".")
+                    # If using a temporary directory to hold the template (e.g.
+                    # downloaded from Github), don't include that directory
+                    # name in the output paths.
+                    fkwargs['pathsubs'] = [[op.basename(to_delete), "."]]
             retval = func(*fargs, **fkwargs)
             if to_delete:
                 fsys.delete(to_delete)
@@ -258,10 +261,10 @@ def make_file(inpath, tmpldict, outpath=None):
         qprompt.echo(text)
     return True
 
-def make_dir(inpath, tmpldict, outpath=None, _roots=None):
+def make_dir(inpath, tmpldict, outpath=None, pathsubs=None):
+    pathsubs = pathsubs or []
     inpath = op.abspath(inpath)
     bpath = op.basename(inpath)
-
     if not outpath:
         outpath = os.getcwd()
     dname = render_str(bpath, tmpldict)
@@ -270,10 +273,8 @@ def make_dir(inpath, tmpldict, outpath=None, _roots=None):
     mpath = op.abspath(op.join(outpath, dname))
     if not mpath:
         return False
-    if _roots:
-        mpath = mpath.replace(*_roots)
-    else:
-        _roots = (render_str(inpath, tmpldict), mpath)
+    for sub in pathsubs:
+        mpath = mpath.replace(*sub)
     if inpath == mpath:
         qprompt.fatal("Output cannot overwrite input template!")
     mpath = render_str(mpath, tmpldict)
@@ -289,7 +290,7 @@ def make_dir(inpath, tmpldict, outpath=None, _roots=None):
                 return False
         for d in ds:
             ipath = op.join(r, d)
-            if not make_dir(ipath, tmpldict, mpath, _roots=_roots):
+            if not make_dir(ipath, tmpldict, mpath, pathsubs=pathsubs):
                 return False
         break # Prevents from walking beyond parent.
     return True
