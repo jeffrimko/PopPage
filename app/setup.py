@@ -7,16 +7,6 @@ from setuptools import setup, find_packages
 from platform import system
 
 ##==============================================================#
-## SECTION: Global Definitions                                  #
-##==============================================================#
-
-SCRIPTS = []
-if "Windows" == system():
-    SCRIPTS = ["poppage.bat", "poppage.py"]
-if "Linux" == system():
-    SCRIPTS = ["poppage"]
-
-##==============================================================#
 ## SECTION: Main Body                                           #
 ##==============================================================#
 
@@ -30,7 +20,7 @@ setup(
     keywords = "project-templates file-templates file-generation",
     url = "https://github.com/jeffrimko/PopPage",
     py_modules=["poppage","gitr","utilconf"],
-    scripts=SCRIPTS,
+    scripts=["poppage.bat", "poppage.py", "poppage"],
     long_description=open("README.rst").read() if isfile("README.rst") else "",
     classifiers=[
         "Development Status :: 4 - Beta",
