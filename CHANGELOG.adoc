@@ -1,5 +1,9 @@
 = PopPage Changelog
 
+== poppage-0.7.1 (2018-08-13)
+=== Added
+  - Attempt to fix install and line ending issue on Linux.
+
 == poppage-0.7.0 (2018-02-22)
 === Added
   - Can now pass RUNARGS directly to execute commands.

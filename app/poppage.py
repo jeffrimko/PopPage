@@ -86,10 +86,12 @@ if sys.version_info < (3, 0):
 ##==============================================================#
 
 #: Application version string.
-__version__ = "0.7.0"
+__version__ = "0.7.1"
 
 #: Key separator.
 KEYSEP = "::"
+
+TMPLDICT = {}
 
 ##==============================================================#
 ## SECTION: Class Definitions                                   #
@@ -158,6 +160,7 @@ def handle_paths(**dkwargs):
                     # downloaded from Github), don't include that directory
                     # name in the output paths.
                     fkwargs['pathsubs'] = [[op.basename(to_delete), "."]]
+            print(fargs)
             retval = func(*fargs, **fkwargs)
             if to_delete:
                 fsys.delete(to_delete)
@@ -165,47 +168,49 @@ def handle_paths(**dkwargs):
         return inner
     return wrap
 
-def check_template(tmplstr, tmpldict=None):
+def check_template(tmplstr):
     """Checks the given template string against the given template variable
     dictionary. Returns a list of variables not provided in the given
     dictionary."""
-    def check_tmplitems(items, tmpldict, topkey=""):
+    global TMPLDICT
+    def check_tmplitems(items, topkey=""):
         missing = []
         for key,val in items:
             if type(val) == model.Dictionary:
                 missing += check_tmplitems(
                         val.items(),
-                        tmpldict.get(key, {}),
+                        TMPLDICT.get(key, {}),
                         key if not topkey else "%s%s%s" % (topkey, KEYSEP, key))
             else:
                 name = key if not topkey else "%s%s%s" % (topkey, KEYSEP, key)
                 try:
-                    if key not in tmpldict.keys():
+                    if key not in TMPLDICT.keys():
                         missing.append(name)
                 except:
                     qprompt.warn("Issue checking var `%s`!" % (name))
         return missing
 
-    tmpldict = tmpldict or {}
     try:
-        missing = check_tmplitems(infer(tmplstr).items(), tmpldict)
+        missing = check_tmplitems(infer(tmplstr).items())
     except:
         missing = []
     return missing
 
-def render_str(tmplstr, tmpldict, bail_miss=False):
+def render_str(tmplstr, bail_miss=False):
     """Renders the given template string using the given template variable
     dictionary. Returns the rendered text as a string."""
+    global TMPLDICT
     env = Environment(undefined=SkipUndefined, extensions=['jinja2_time.TimeExtension'])
-    miss = check_template(tmplstr, tmpldict)
+    miss = check_template(tmplstr)
     if miss:
         qprompt.warn("Template vars `%s` were not supplied values!" % (
             "/".join(miss)))
-    return env.from_string(tmplstr).render(**tmpldict)
+    return env.from_string(tmplstr).render(**TMPLDICT)
 
-def render_file(tmplpath, tmpldict, bail_miss=False):
+def render_file(tmplpath, bail_miss=False):
     """Renders the template file and the given path using the given template
     variable dictionary. Returns the rendered text as a string."""
+    global TMPLDICT
     tmplpath = op.abspath(tmplpath)
     env = Environment(undefined=SkipUndefined, extensions=['jinja2_time.TimeExtension'])
     for encoding in ["utf-8", "mbcs"]:
@@ -219,33 +224,35 @@ def render_file(tmplpath, tmpldict, bail_miss=False):
         qprompt.fatal("Unknown issue while loading template!")
     with io.open(tmplpath) as fo:
         tmplstr = fo.read()
-    miss = check_template(tmplstr, tmpldict)
+    miss = check_template(tmplstr)
     if miss:
         qprompt.warn("Template vars `%s` in `%s` were not supplied values!" % (
             "/".join(miss),
             op.basename(tmplpath)))
-    return tmpl.render(**tmpldict)
+    return tmpl.render(**TMPLDICT)
 
 @handle_paths(inpath=0,outpath=2)
-def make(inpath, tmpldict, outpath=None, **kwargs):
+def make(inpath, outpath=None, **kwargs):
     """Generates a file or directory based on the given input
     template/dictionary."""
+    global TMPLDICT
     if op.isfile(inpath):
-        return make_file(inpath, tmpldict, outpath=outpath, **kwargs)
+        return make_file(inpath, outpath=outpath, **kwargs)
     else:
-        return make_dir(inpath, tmpldict, outpath=outpath, **kwargs)
+        return make_dir(inpath, outpath=outpath, **kwargs)
 
-def make_file(inpath, tmpldict, outpath=None):
+def make_file(inpath, outpath=None):
+    global TMPLDICT
     inpath = op.abspath(inpath)
     if outpath:
-        outpath = render_str(outpath, tmpldict)
+        outpath = render_str(outpath)
         if op.isdir(outpath):
             outpath = op.join(outpath, op.basename(inpath))
-            outpath = render_str(outpath, tmpldict)
+            outpath = render_str(outpath)
     if is_binary(inpath):
         qprompt.status("Copying `%s`..." % (outpath), fsys.copy, [inpath,outpath])
         return
-    text = render_file(inpath, tmpldict)
+    text = render_file(inpath, TMPLDICT)
     if text == None:
         return False
 
@@ -261,13 +268,14 @@ def make_file(inpath, tmpldict, outpath=None):
         qprompt.echo(text)
     return True
 
-def make_dir(inpath, tmpldict, outpath=None, pathsubs=None):
+def make_dir(inpath, outpath=None, pathsubs=None):
+    global TMPLDICT
     pathsubs = pathsubs or []
     inpath = op.abspath(inpath)
     bpath = op.basename(inpath)
     if not outpath:
         outpath = os.getcwd()
-    dname = render_str(bpath, tmpldict)
+    dname = render_str(bpath)
     if not dname:
         return False
     mpath = op.abspath(op.join(outpath, dname))
@@ -277,20 +285,20 @@ def make_dir(inpath, tmpldict, outpath=None, pathsubs=None):
         mpath = mpath.replace(*sub)
     if inpath == mpath:
         qprompt.fatal("Output cannot overwrite input template!")
-    mpath = render_str(mpath, tmpldict)
+    mpath = render_str(mpath)
     qprompt.status("Making dir `%s`..." % (mpath), fsys.makedirs, [mpath])
 
     # Iterate over files and directories IN PARENT ONLY.
     for r,ds,fs in os.walk(inpath):
         for f in fs:
             ipath = op.join(r,f)
-            fname = render_str(f, tmpldict)
+            fname = render_str(f)
             opath = op.join(mpath, fname)
-            if not make_file(ipath, tmpldict, opath):
+            if not make_file(ipath, opath):
                 return False
         for d in ds:
             ipath = op.join(r, d)
-            if not make_dir(ipath, tmpldict, mpath, pathsubs=pathsubs):
+            if not make_dir(ipath, mpath, pathsubs=pathsubs):
                 return False
         break # Prevents from walking beyond parent.
     return True
@@ -315,23 +323,25 @@ def check(inpath, echo=False, **kwargs):
             qprompt.echo("  " + var)
     return tvars
 
-def run(inpath, tmpldict, outpath=None, execute=None, runargs=None):
+def run(inpath, outpath=None, execute=None, runargs=None):
     """Handles logic for `run` command."""
+    global TMPLDICT
     if not outpath:
         outpath = op.join(os.getcwd(), "__temp-poppage-" + _getrands(6))
-    make(inpath, tmpldict, outpath=outpath)
+    make(inpath, outpath=outpath)
     qprompt.hrule()
     if not execute:
         execute = outpath
-    tmpldict.update({'outpath': outpath})
-    tmpldict.update({'runargs': " ".join(runargs or [])})
-    execute = render_str(execute, tmpldict)
+    TMPLDICT.update({'outpath': outpath})
+    TMPLDICT.update({'runargs': " ".join(runargs or [])})
+    execute = render_str(execute)
     for line in execute.splitlines():
         sh.call(line.strip())
     fsys.delete(outpath)
 
 def main():
     """This function implements the main logic."""
+    global TMPLDICT
     if len(sys.argv) > 1 and op.isfile(sys.argv[1]):
         args = {}
         args['--defaults'] = sys.argv[1]
@@ -343,7 +353,7 @@ def main():
         args['runargs'] = sys.argv[2:] or ""
     else:
         args = docopt(__doc__, version="poppage-%s" % (__version__))
-    utildict, tmpldict = utilconf.parse(args)
+    utildict, TMPLDICT = utilconf.parse(args)
 
     # Check required conditions.
     if not utildict.get('inpath'):
@@ -353,14 +363,14 @@ def main():
     if utildict['command'] == "check":
         check(utildict['inpath'], echo=True)
     elif utildict['command'] == "make":
-        make(utildict['inpath'], tmpldict, outpath=utildict.get('outpath'))
+        make(utildict['inpath'], outpath=utildict.get('outpath'))
     elif utildict['command'] == "run":
-        run(utildict['inpath'], tmpldict, outpath=utildict.get('outpath'), execute=utildict.get('execute'), runargs=utildict.get('runargs'))
+        run(utildict['inpath'], outpath=utildict.get('outpath'), execute=utildict.get('execute'), runargs=utildict.get('runargs'))
     elif utildict['command'] == "debug":
         qprompt.echo("Utility Dictionary:")
         pprint(utildict)
         qprompt.echo("Template Dictionary:")
-        pprint(tmpldict)
+        pprint(TMPLDICT)
 
 ##==============================================================#
 ## SECTION: Main Body                                           #
