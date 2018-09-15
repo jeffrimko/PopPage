@@ -165,11 +165,10 @@ Run PopPage to generate your files:
     # This will generate the {{cookiecutter.repo_name}} subdirectory to a new directory based on the given variables, in this case LastCrusade.
 
 === Demo Video
-Here is a quick demo video:
+A quick demo video is https://youtu.be/955GwxbDx2k[available here on YouTube]. This video demos using a single set of requirements information to generate native shell scripts for both Windows and Linux. The templates used in this demo are available on GitHub at the following locations:
 
-++++++++
-<iframe width="560" height="315" src="https://www.youtube.com/embed/955GwxbDx2k" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-++++++++
+  - https://github.com/jeffrimko/PopPageTemplates/tree/master/check_deps_bash[Linux Bash Script]
+  - https://github.com/jeffrimko/PopPageTemplates/tree/master/check_deps_batch[Microsoft Batch Script]
 
 == Similar
 The following projects are similar and may be worth checking out:
