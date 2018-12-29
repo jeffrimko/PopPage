@@ -355,11 +355,12 @@ def main():
 
     # Handle command.
     if utildict['command'] == "check":
-        check(utildict['inpath'], echo=True)
+        check(utildict['inpath'][0], echo=True)
     elif utildict['command'] == "make":
-        make(utildict['inpath'], tmpldict, outpath=utildict.get('outpath'))
+        for inpath, outpath in zip(utildict['inpath'], utildict['outpath']):
+            make(inpath, tmpldict, outpath=outpath)
     elif utildict['command'] == "run":
-        run(utildict['inpath'], tmpldict, outpath=utildict.get('outpath'), execute=utildict.get('execute'), runargs=utildict.get('runargs'))
+        run(utildict['inpath'][0], tmpldict, outpath=utildict['outpath'][0], execute=utildict.get('execute'), runargs=utildict.get('runargs'))
     elif utildict['command'] == "debug":
         qprompt.echo("Utility Dictionary:")
         pprint(utildict)

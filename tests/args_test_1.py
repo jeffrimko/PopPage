@@ -17,7 +17,7 @@ class TestCase(BaseTest):
         args = get_args()
         args['--inpath'] = "foo.txt"
         utildict, tmpldict = parse(args)
-        test.assertEqual(utildict['inpath'], "foo.txt")
+        test.assertEqual(utildict['inpath'], ["foo.txt"])
         test.assertEqual(tmpldict, {})
 
     def test_args_2(test):
@@ -26,9 +26,9 @@ class TestCase(BaseTest):
         args['--inpath'] = "foo.txt"
         args['--execute'] = "bar"
         utildict, tmpldict = parse(args)
-        test.assertEqual(utildict['inpath'], "foo.txt")
+        test.assertEqual(utildict['inpath'], ["foo.txt"])
         test.assertEqual(utildict['execute'], "bar")
-        test.assertEqual(utildict['outpath'], "__output__/out.py")
+        test.assertEqual(utildict['outpath'], ["__output__/out.py"])
 
 ##==============================================================#
 ## SECTION: Main Body                                           #

@@ -74,6 +74,9 @@ class AskPrompter(str):
 ## SECTION: Function Definitions                                #
 ##==============================================================#
 
+def _tolist_no_none(val):
+    return [v for v in [val] if v != None]
+
 def update(d, u):
     """Updates a dictionary without replacing nested dictionaries. Code
     found from `https://stackoverflow.com/a/3233356`."""
@@ -133,15 +136,26 @@ def get_cliopts(args):
 def get_defopts(dfltdict):
     opts = {}
     if "__opt__" in dfltdict.keys():
-        for key in ['execute', 'outpath', 'command']:
+        for key in ['execute', 'command']:
             opts[key] = (dfltdict.get('__opt__', {}) or {}).get(key)
+        for key in ['outpath']:
+            val = (dfltdict.get('__opt__', {}) or {}).get(key)
+            if type(val) != list:
+                val = _tolist_no_none(val)
+            opts[key] = val
         # TODO: Clean up, perhaps make function that can be called by OptLoader.
         for key in ['inpath']:
             # Make paths absolute based on the location of the defaults file.
-            opts[key] =  (dfltdict.get('__opt__', {}) or {}).get(key)
-            if not op.isabs(opts[key]) and not opts[key].startswith("http"):
-                global _DFLTFILE
-                opts[key] = op.abspath(op.normpath(op.join(op.dirname(_DFLTFILE), opts[key])))
+            # opts[key] = (dfltdict.get('__opt__', {}) or {}).get(key)
+            val = (dfltdict.get('__opt__', {}) or {}).get(key)
+            if type(val) != list:
+                val = [val]
+            opts[key] = []
+            for v in val:
+                if v != None and not op.isabs(v) and not v.startswith("http"):
+                    global _DFLTFILE
+                    v = op.abspath(op.normpath(op.join(op.dirname(_DFLTFILE), v)))
+                opts[key].append(v)
         dfltdict.pop('__opt__')
     return opts
 
@@ -197,6 +211,17 @@ def parse(args):
     utildict.update(get_cliopts(args))
     if args.get('--defaults') and not utildict.get('command'):
         utildict['command'] = "run"
+    for key in ["inpath", "outpath"]:
+        if key not in utildict.keys():
+            utildict[key] = []
+        elif type(utildict[key]) != list:
+            utildict[key] = _tolist_no_none(utildict[key])
+    while len(utildict['outpath']) < len(utildict['inpath']):
+        utildict['outpath'].append(None)
+    # from pprint import pprint
+    # pprint(utildict)
+    # pprint(tmpldict)
+    # exit()
     return utildict, tmpldict
 
 ##==============================================================#
