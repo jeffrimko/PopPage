@@ -115,6 +115,14 @@ class TestCase(BaseTest):
             test.assertTrue(op.isfile("./foo/bar.txt"))
             test.assertEqual(File("./foo/bar.txt").read(), "hello baz!")
 
+    def test_cli_make_19(test):
+        errcode = call("make --defaults defaults/d10.yaml")
+        test.assertEqual(0, errcode)
+        test.assertTrue(op.isdir("./__output__/foo"))
+        test.assertTrue(op.isfile("./__output__/foo/bar.txt"))
+        test.assertTrue(op.isfile("./__output__/bar.txt"))
+        test.assertEqual(File("./__output__/bar.txt").read(), "Hello baz from bar!")
+
 ##==============================================================#
 ## SECTION: Main Body                                           #
 ##==============================================================#

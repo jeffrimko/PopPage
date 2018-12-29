@@ -360,7 +360,12 @@ def main():
         for inpath, outpath in zip(utildict['inpath'], utildict['outpath']):
             make(inpath, tmpldict, outpath=outpath)
     elif utildict['command'] == "run":
-        run(utildict['inpath'][0], tmpldict, outpath=utildict['outpath'][0], execute=utildict.get('execute'), runargs=utildict.get('runargs'))
+        run(
+                utildict['inpath'][0],
+                tmpldict,
+                outpath=utildict['outpath'][0],
+                execute=utildict.get('execute'),
+                runargs=utildict.get('runargs'))
     elif utildict['command'] == "debug":
         qprompt.echo("Utility Dictionary:")
         pprint(utildict)

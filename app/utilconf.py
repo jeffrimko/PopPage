@@ -218,10 +218,6 @@ def parse(args):
             utildict[key] = _tolist_no_none(utildict[key])
     while len(utildict['outpath']) < len(utildict['inpath']):
         utildict['outpath'].append(None)
-    # from pprint import pprint
-    # pprint(utildict)
-    # pprint(tmpldict)
-    # exit()
     return utildict, tmpldict
 
 ##==============================================================#

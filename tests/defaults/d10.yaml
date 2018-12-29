@@ -1,0 +1,10 @@
+__opt__:
+    inpath:
+      - ../templates/{{mydir}}
+      - ../templates/t6.jinja2
+    outpath:
+      - __output__
+      - __output__/{{myfile}}.txt
+mydir: foo
+myfile: bar
+myname: baz
