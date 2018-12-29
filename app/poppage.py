@@ -212,6 +212,7 @@ def render_file(tmplpath, tmpldict, bail_miss=False):
     env = Environment(undefined=SkipUndefined, extensions=['jinja2_time.TimeExtension'])
     env.trim_blocks = True
     env.lstrip_blocks = True
+    env.keep_trailing_newline = True
     for encoding in ["utf-8", "mbcs"]:
         try:
             env.loader = FileSystemLoader(op.dirname(tmplpath), encoding=encoding)
