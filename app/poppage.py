@@ -197,6 +197,8 @@ def render_str(tmplstr, tmpldict, bail_miss=False):
     """Renders the given template string using the given template variable
     dictionary. Returns the rendered text as a string."""
     env = Environment(undefined=SkipUndefined, extensions=['jinja2_time.TimeExtension'])
+    env.trim_blocks = True
+    env.lstrip_blocks = True
     miss = check_template(tmplstr, tmpldict)
     if miss:
         qprompt.warn("Template vars `%s` were not supplied values!" % (
@@ -208,6 +210,8 @@ def render_file(tmplpath, tmpldict, bail_miss=False):
     variable dictionary. Returns the rendered text as a string."""
     tmplpath = op.abspath(tmplpath)
     env = Environment(undefined=SkipUndefined, extensions=['jinja2_time.TimeExtension'])
+    env.trim_blocks = True
+    env.lstrip_blocks = True
     for encoding in ["utf-8", "mbcs"]:
         try:
             env.loader = FileSystemLoader(op.dirname(tmplpath), encoding=encoding)
