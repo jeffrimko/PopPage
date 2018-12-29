@@ -1,7 +1,7 @@
 = PopPage
 
 image:http://img.shields.io/:license-mit-blue.svg["License", link="https://github.com/jeffrimko/PopPage/blob/master/LICENSE"]
-image:https://travis-ci.org/jeffrimko/PopPage.svg?branch=master["Build Status"]
+image:https://travis-ci.org/jeffrimko/PopPage.svg?branch=master["Build Status", link="https://travis-ci.org/jeffrimko/PopPage"]
 
 == Introduction
 PopPage is a simple command-line utility originally intended as a static website generator but has since grown into a https://github.com/audreyr/cookiecutter[cookiecutter] clone. The main features of PopPage are:
