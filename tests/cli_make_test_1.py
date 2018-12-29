@@ -15,25 +15,25 @@ class TestCase(BaseTest):
     def test_cli_make_1(test):
         errcode = call("make --inpath ./templates/t1.jinja2 --outpath %s --string name Mister" % (OUTFILE))
         test.assertEqual(0, errcode)
-        test.assertEqual(File(OUTFILE).read(), "Hello Mister!")
+        test.assertEqual(File(OUTFILE).read(), "Hello Mister!" + os.linesep)
 
     def test_cli_make_2(test):
         args = "--string name::first Mister --string name::last Bob"
         errcode = call("make --inpath ./templates/t2.jinja2 --outpath %s %s" % (OUTFILE, args))
         test.assertEqual(0, errcode)
-        test.assertEqual(File(OUTFILE).read(), "Hello Mister Bob!")
+        test.assertEqual(File(OUTFILE).read(), "Hello Mister Bob!" + os.linesep)
 
     def test_cli_make_3(test):
         args = "--string num five --string name::first Mister --string name::last Bob"
         errcode = call("make --inpath ./templates/t3.jinja2 --outpath %s %s" % (OUTFILE, args))
         test.assertEqual(0, errcode)
-        test.assertEqual(File(OUTFILE).read(), "Hello Mister Bob, high five!")
+        test.assertEqual(File(OUTFILE).read(), "Hello Mister Bob, high five!" + os.linesep)
 
     def test_cli_make_4(test):
         args = "--defaults ./defaults/d1.yaml"
         errcode = call("make --inpath ./templates/t3.jinja2 --outpath %s %s" % (OUTFILE, args))
         test.assertEqual(0, errcode)
-        test.assertEqual(File(OUTFILE).read(), "Hello Mister Bob, high five!")
+        test.assertEqual(File(OUTFILE).read(), "Hello Mister Bob, high five!" + os.linesep)
 
     def test_cli_make_5(test):
         args = "--defaults ./defaults/d2.yaml"
@@ -45,7 +45,7 @@ class TestCase(BaseTest):
         args = "--defaults ./defaults/d3.yaml"
         errcode = call("make --inpath ./templates/t2.jinja2 --outpath %s %s" % (OUTFILE, args))
         test.assertEqual(0, errcode)
-        test.assertEqual(File(OUTFILE).read(), "Hello Mister Bob!")
+        test.assertEqual(File(OUTFILE).read(), "Hello Mister Bob!" + os.linesep)
 
     def test_cli_make_7(test):
         errcode = call("make --defaults ./defaults/d4.yaml")
@@ -121,7 +121,7 @@ class TestCase(BaseTest):
         test.assertTrue(op.isdir("./__output__/foo"))
         test.assertTrue(op.isfile("./__output__/foo/bar.txt"))
         test.assertTrue(op.isfile("./__output__/bar.txt"))
-        test.assertEqual(File("./__output__/bar.txt").read(), "Hello baz from bar!")
+        test.assertEqual(File("./__output__/bar.txt").read(), "Hello baz from bar!" + os.linesep)
 
 ##==============================================================#
 ## SECTION: Main Body                                           #

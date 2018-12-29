@@ -16,11 +16,11 @@ class TestCase(BaseTest):
 
     def test_make_1(test):
         make("./templates/t1.jinja2", {'name':"Mister"}, OUTFILE)
-        test.assertEqual(File(OUTFILE).read(), "Hello Mister!")
+        test.assertEqual(File(OUTFILE).read(), "Hello Mister!" + os.linesep)
 
     def test_make_2(test):
         make("./templates/t2.jinja2", {'name':{'first':"Mister",'last':"Bob"}}, OUTFILE)
-        test.assertEqual(File(OUTFILE).read(), "Hello Mister Bob!")
+        test.assertEqual(File(OUTFILE).read(), "Hello Mister Bob!" + os.linesep)
 
     def test_make_3(test):
         makedirs("mytemp")

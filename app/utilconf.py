@@ -184,6 +184,8 @@ def get_tmpldict(args):
     tmplnest = {}
     global KEYSEP
     KEYSEP = args['--keysep']
+    if type(tmpldict) != dict:
+        qprompt.fatal("Template dictionary is not correct type (%s)!" % (type(tmpldict)))
     for k,v in tmpldict.items():
         if k.find(KEYSEP) > -1:
             level = tmplnest
