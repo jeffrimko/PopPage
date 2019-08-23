@@ -1,4 +1,4 @@
-"""PopPage is a utility for generating output from templates.
+"""PopPage is a utility for generating file/directory output from Jinja2 templates.
 
 Usage:
     poppage INPATH [runargs]
@@ -86,7 +86,7 @@ if sys.version_info < (3, 0):
 ##==============================================================#
 
 #: Application version string.
-__version__ = "0.8.0"
+__version__ = "0.8.1"
 
 #: Key separator.
 KEYSEP = "::"
@@ -378,4 +378,5 @@ def main():
 ##==============================================================#
 
 if __name__ == '__main__':
+    print("", end="", flush=True)
     main()

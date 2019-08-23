@@ -12,7 +12,7 @@ from platform import system
 
 setup(
     name = "poppage",
-    version = "0.8.0",
+    version = "0.8.1",
     author = "Jeff Rimko",
     author_email = "jeffrimko@gmail.com",
     description = "Utility for generating files and directories from templates.",

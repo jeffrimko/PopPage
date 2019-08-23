@@ -45,7 +45,7 @@ class OptLoader(object):
             global _DFLTFILE
             fpath = op.normpath(op.join(op.dirname(_DFLTFILE), fpath))
         with io.open(fpath) as fi:
-            opt = yaml.load(fi.read())
+            opt = yaml.load(fi.read(), Loader=yaml.Loader)
         # TODO: Clean up, perhaps make function that can be called by get_defopts.
         if "inpath" in opt.keys():
             if not opt['inpath'].startswith("http"):
@@ -60,7 +60,7 @@ class IncLoader(object):
             global _DFLTFILE
             fpath = op.normpath(op.join(op.dirname(_DFLTFILE), fpath))
         with io.open(fpath) as fi:
-            return yaml.load(fi.read())
+            return yaml.load(fi.read(), Loader=yaml.Loader)
     def __repr__(self):
         return str(self)
 
@@ -175,7 +175,7 @@ def get_tmpldict(args):
         global _DFLTFILE
         _DFLTFILE = op.abspath(dfltfile)
         data = fsys.File(dfltfile).read()
-        tmpldict = yaml.load(data)
+        tmpldict = yaml.load(data, Loader=yaml.Loader)
     tmpldict = update(tmpldict, {k:v for k,v in zip(args['--string'], args['VAL'])})
     tmpldict = update(tmpldict, {k:fsys.File(v).read().strip() for k,v in zip(args['--file'], args['PATH'])})
 
