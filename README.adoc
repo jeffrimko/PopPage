@@ -1,12 +1,14 @@
 = PopPage
+:url_jinja: http://jinja.pocoo.org/
+:txt_jintmp: {url_jinja}[Jinja2 templates]
 
 image:http://img.shields.io/:license-mit-blue.svg["License", link="https://github.com/jeffrimko/PopPage/blob/master/LICENSE"]
 image:https://travis-ci.org/jeffrimko/PopPage.svg?branch=master["Build Status", link="https://travis-ci.org/jeffrimko/PopPage"]
 
 == Introduction
-PopPage is a simple command-line utility originally intended as a static website generator but has since grown into a https://github.com/audreyr/cookiecutter[cookiecutter] clone. The main features of PopPage are:
+PopPage is a simple command-line utility for applying content to {txt_jintmp} to generate files and directories. This project originally started as a static website generator but has since grown into something of a partial https://github.com/audreyr/cookiecutter[cookiecutter] clone. The main features of PopPage are:
 
-  - Uses http://jinja.pocoo.org/[Jinja2 templates] to generate output.
+  - Uses {txt_jintmp} to generate output.
   - Fairly good support for https://github.com/audreyr/cookiecutter[cookiecutter] templates.
   - Uses YAML to store default key/values for template variables.
   - Output can be single files or directories.
