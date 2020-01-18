@@ -6,7 +6,7 @@ image:http://img.shields.io/:license-mit-blue.svg["License", link="https://githu
 image:https://travis-ci.org/jeffrimko/PopPage.svg?branch=master["Build Status", link="https://travis-ci.org/jeffrimko/PopPage"]
 
 == Introduction
-PopPage is a simple command-line utility for applying content to {txt_jintmp} to generate files and directories. This project originally started as a static website generator but has since grown into something of a partial https://github.com/audreyr/cookiecutter[cookiecutter] clone. The main features of PopPage are:
+PopPage is a simple command-line utility for applying content to {txt_jintmp} to generate files and directories. This project originally started as a static website generator but has since grown into something of a partial https://github.com/audreyr/cookiecutter[cookiecutter] clone but it can be used for many purposes including documentation and code generation. The main features of PopPage are:
 
   - Uses {txt_jintmp} to generate output.
   - Fairly good support for https://github.com/audreyr/cookiecutter[cookiecutter] templates.
