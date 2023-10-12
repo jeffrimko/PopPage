@@ -17,9 +17,9 @@ PopPage is a simple command-line utility for applying content to {txt_jintmp} to
 A collection of templates is https://github.com/jeffrimko/PopPageTemplates[available here].
 
 == Status
-Currently, this project is in the **development release** stage. While this project is suitable for use, please note that there may be incompatibilities in new releases.
+The status of this project is **beta**. This project is suitable for use but there may be incompatibilities in new releases.
 
-Release notes are maintained in the project https://github.com/jeffrimko/PopPage/blob/master/CHANGELOG.adoc[changelog].
+Refer to the project https://github.com/jeffrimko/PopPage/blob/master/CHANGELOG.adoc[changelog] for release notes.
 
 == Requirements
 PopPage runs on Python 2.7/3.x and uses some third-party libraries.
