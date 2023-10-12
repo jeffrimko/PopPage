@@ -22,7 +22,7 @@ The status of this project is **beta**. This project is suitable for use but the
 Refer to the project https://github.com/jeffrimko/PopPage/blob/master/CHANGELOG.adoc[changelog] for release notes.
 
 == Requirements
-PopPage runs on Python 2.7/3.x and uses some third-party libraries.
+PopPage requires [Python 2.7/3.x](https://www.python.org/).
 
 == Installation
 PopPage is https://pypi.python.org/pypi/poppage[available on PyPI here] and can be installed with pip using the following command: `pip install poppage`
